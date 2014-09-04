@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Test jk-js</title>
+    <meta charset="utf-8">
+    <script src="lib/d3/d3.min.js" charset="utf-8"></script>
+    <script src="path.js" charset="utf-8"></script>
+    <script src="effects.js" charset="utf-8"></script>
+    <style>
+        body {
+            font-family: "PT Sans", Helvetica, Arial, sans-serif;
+        }
+
+        #filterText {
+            text-anchor: middle;
+            fill: black;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body onload="start()">
+    <svg id="svgFilter" style="width: 100px; height: 50px;">
+        <rect x="0" y="0" width="100" height="50" />
+        <text x="50" y="30" id="filterText">Click Me!</text>
+    </svg>
+    <svg id="svgPattern" style="width: 100px; height: 50px;">
+        <path id="patternPath"/>
+    </svg>
+
+
+<script>
+function start() {
+    // filter test
+    var cix = 0;
+    var colors = [ null,  "white", "crimson", "cornflowerblue" ];
+    var svgFilter = d3.select("#svgFilter").on("click", function() {
+        cix = (cix + 1) % colors.length;
+        svgFilter.selectAll("rect").style({
+            "fill": colors[cix]
+        });
+    });
+    d3.select("#filterText").attr({
+        "filter": jkjs.effects.getBlurFilter(svgFilter, 6)
+    });
+    // pattern test
+    var coolness = false;
+    var svgPattern = d3.select("#svgPattern").on("click", function() {
+        coolness = !coolness;
+        d3.select("#patternPath").attr({
+            "filter": coolness ? jkjs.effects.getBlurFilter(svgPattern, 2) : null
+        });
+    });
+    var path = new jkjs.Path();
+    var htap = new jkjs.Path();
+    var pos = 0;
+    path.move(0, 20);
+    var delta = 10;
+    var w = 100 + delta;
+    var y1 = 10;
+    var y2 = 20;
+    var y3 = 30;
+    var y4 = 40;
+    while(pos < w) {
+        path.quad(pos, y1, pos + delta, y1);
+        htap.quad(w - pos, y4, w - pos - delta, y4);
+        pos += 2*delta;
+        path.quad(pos, y1, pos, y2);
+        htap.quad(w - pos, y4, w - pos, y3);
+    }
+    path.add(htap);
+    path.close();
+    d3.select("#patternPath").attr({
+        "d": path,
+        "stroke": "black",
+        "fill": jkjs.effects.getStripePattern(svgPattern, d3.rgb("crimson"), 23)
+    });
+}
+</script>
+
+</body>
+</html>
