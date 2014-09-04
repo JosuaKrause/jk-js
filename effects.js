@@ -76,7 +76,7 @@ jkjs.effects = function() {
     var c = color.toString();
     // enable for smaller color space
     //c = c.length === 7 && c.charAt(0) === '#' ? c.substring(0, 2) + c.charAt(3) + c.charAt(5) : c;
-    var id = "stripes" + c.replace(/[#\.]/, '_');
+    var id = ("stripes" + c + '_' + size).replace(/[#\.]/, '_');
     var pattern = createDef(svg, id, "pattern");
     var s = size || 30;
     pattern.attr({
