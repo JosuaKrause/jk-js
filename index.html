@@ -6,6 +6,7 @@
     <script src="lib/d3/d3.min.js" charset="utf-8"></script>
     <script src="path.js" charset="utf-8"></script>
     <script src="effects.js" charset="utf-8"></script>
+    <script src="text.js" charset="utf-8"></script>
     <style>
         body {
             font-family: "PT Sans", Helvetica, Arial, sans-serif;
@@ -22,18 +23,20 @@
     </style>
 </head>
 <body onload="start()">
-    <svg id="svgFilter" style="width: 100px; height: 50px;">
-        <rect x="0" y="0" width="100" height="50" />
-        <text x="50" y="30" id="filterText">Click Me!</text>
-    </svg>
-    <svg id="svgPattern" style="width: 100px; height: 50px;">
-        <path id="patternPath"/>
-    </svg>
-
-
+    <div>
+        <svg id="svgFilter" style="width: 100px; height: 50px;">
+            <rect x="0" y="0" width="100" height="50" />
+            <text x="50" y="30" id="filterText">Click Me!</text>
+        </svg>
+        <svg id="svgPattern" style="width: 100px; height: 50px;">
+            <path id="patternPath"/>
+        </svg>
+    </div>
+    <div>
+        <svg id="svgText" />
+    </div>
 <script>
-function start() {
-    // filter test
+function filterTest() {
     var cix = 0;
     var colors = [ null,  "white", "crimson", "cornflowerblue" ];
     var svgFilter = d3.select("#svgFilter").on("click", function() {
@@ -45,7 +48,9 @@ function start() {
     d3.select("#filterText").attr({
         "filter": jkjs.effects.getBlurFilter(svgFilter, 6)
     });
-    // pattern test
+}
+
+function patternTest() {
     var coolness = false;
     var svgPattern = d3.select("#svgPattern").on("click", function() {
         coolness = !coolness;
@@ -77,6 +82,78 @@ function start() {
         "stroke": "black",
         "fill": jkjs.effects.getStripePattern(svgPattern, d3.rgb("crimson"), 23)
     });
+}
+
+function textWrapTest() {
+    var w = 500;
+    var h = 250;
+    var longText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, "
+                 + "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+                 + "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris "
+                 + "nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in "
+                 + "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla "
+                 + "pariatur. Excepteur sint occaecat cupidatat non proident, sunt in "
+                 + "culpa qui officia deserunt mollit anim id est laborum.";
+    var shortText = "This is a short text.";
+    var splitX = w * 0.6;
+    var splitY = h;
+    var clamp = function(val, hor) {
+        return Math.min(Math.max(val, 0), hor ? w : h);
+    };
+    var updatePos = function() {
+        var pos = d3.mouse(svgText.node());
+        splitX = clamp(pos[0], true);
+        splitY = clamp(pos[1], false);
+        updateText();
+    };
+    var svgText = d3.select("#svgText").style({
+        width: w + "px",
+        height: h + "px"
+    }).on("mousemove", updatePos).on("mouseout", updatePos);
+    var rectFull = svgText.append("rect").style({
+        "fill": "none",
+        "stroke": "black"
+    }).attr({
+        x: 0,
+        y: 0,
+        width: w,
+        height: h
+    });
+    var txtLeft = svgText.append("text");
+    var rectLeft = svgText.append("rect").style({
+        "fill": "none",
+        "stroke": "black"
+    });
+    var txtRight = svgText.append("text");
+    var rectRight = svgText.append("rect").style({
+        "fill": "none",
+        "stroke": "black"
+    });
+    var updateText = function() {
+        var boxL = {
+            x: 0,
+            y: 0,
+            width: splitX,
+            height: splitY
+        };
+        jkjs.text.display(txtLeft, longText, boxL, true);
+        rectLeft.attr(boxL);
+        var boxR = {
+            x: splitX,
+            y: 0,
+            width: w - splitX,
+            height: splitY
+        };
+        jkjs.text.display(txtRight, shortText, boxR, false, jkjs.text.align.right);
+        rectRight.attr(boxR);
+    };
+    updateText();
+}
+
+function start() {
+    filterTest();
+    patternTest();
+    textWrapTest();
 }
 </script>
 
