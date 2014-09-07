@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Test jk-js</title>
+    <title>jk-js - Examples</title>
     <meta charset="utf-8">
     <script src="lib/d3/d3.min.js" charset="utf-8"></script>
     <script src="jkjs/path.js" charset="utf-8"></script>
@@ -13,51 +13,58 @@
         body {
             font-family: "PT Sans", Helvetica, Arial, sans-serif;
         }
-
-        #filterText {
-            text-anchor: middle;
-            fill: black;
-            -moz-user-select: none;
-            -webkit-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
     </style>
 </head>
 <body onload="start()">
-    <div>
-        <svg id="svgFilter" style="width: 100px; height: 50px;">
-            <rect x="0" y="0" width="100" height="50" />
-            <text x="50" y="30" id="filterText">Click Me!</text>
-        </svg>
-        <svg id="svgPattern" style="width: 100px; height: 50px;">
-            <path id="patternPath"/>
-        </svg>
-    </div>
-    <div>
-        <svg id="svgText" />
-    </div>
-    <div id="divBusy"></div>
+    <div id="divFilter"></div>
+    <div id="divPattern"></div>
+    <div id="divText"></div>
+    <div id="divBusyZUI"></div>
 <script>
-function filterTest() {
+function filterExample(sel) {
+    var w = 100;
+    var h = 50;
     var cix = 0;
     var colors = [ null,  "white", "crimson", "cornflowerblue" ];
-    var svgFilter = d3.select("#svgFilter").on("click", function() {
+    var svgFilter = sel.append("svg").style({
+        "width": w+"px",
+        "height": h+"px"
+    }).on("click", function() {
         cix = (cix + 1) % colors.length;
-        svgFilter.selectAll("rect").style({
+        rect.style({
             "fill": colors[cix]
         });
     });
-    d3.select("#filterText").attr({
-        "filter": jkjs.effects.getBlurFilter(svgFilter, 6)
+    var rect = svgFilter.append("rect").attr({
+        "x": 0,
+        "y": 0,
+        "width": w,
+        "height": h
     });
+    svgFilter.append("text").attr({
+        "x": w * 0.5,
+        "y": (h + 10) * 0.5,
+        "filter": jkjs.effects.getBlurFilter(svgFilter, 6)
+    }).style({
+        "text-anchor": "middle",
+        "fill": "black",
+        "-moz-user-select": "none",
+        "-webkit-user-select": "none",
+        "-ms-user-select": "none",
+        "user-select": "none"
+    }).text("Click Me!");
 }
 
-function patternTest() {
+function patternExample(sel) {
+    var w = 100;
+    var h = 50;
     var coolness = false;
-    var svgPattern = d3.select("#svgPattern").on("click", function() {
+    var svgPattern = sel.append("svg").style({
+        "width": w+"px",
+        "height": h+"px"
+    }).on("click", function() {
         coolness = !coolness;
-        d3.select("#patternPath").attr({
+        pathSel.attr({
             "filter": coolness ? jkjs.effects.getBlurFilter(svgPattern, 2) : null
         });
     });
@@ -80,14 +87,14 @@ function patternTest() {
     }
     path.add(htap);
     path.close();
-    d3.select("#patternPath").attr({
+    var pathSel = svgPattern.append("path").attr({
         "d": path,
         "stroke": "black",
         "fill": jkjs.effects.getStripePattern(svgPattern, d3.rgb("crimson"), 23)
     });
 }
 
-function textWrapTest() {
+function textWrapExample(sel) {
     var w = 500;
     var h = 250;
     var longText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, "
@@ -109,7 +116,7 @@ function textWrapTest() {
         splitY = clamp(pos[1], false);
         updateText();
     };
-    var svgText = d3.select("#svgText").style({
+    var svgText = sel.append("svg").style({
         width: w + "px",
         height: h + "px"
     }).on("mousemove", updatePos).on("mouseout", updatePos);
@@ -153,12 +160,11 @@ function textWrapTest() {
     updateText();
 }
 
-function busyAndZUITest() {
+function busyZUIExample(sel) {
     var w = 200;
     var h = 100;
-    var b = d3.select("#divBusy");
     // ZUI
-    var zui = jkjs.zui.create(b, {
+    var zui = jkjs.zui.create(sel, {
         width: w + "px",
         height: h + "px"
     }, {
@@ -211,22 +217,39 @@ function busyAndZUITest() {
         width: w,
         height: h
     });
-    b.append("span").on("click", function() {
+    var btns = sel.append("div");
+    btns.append("span").on("click", function() {
         busy.setState(busy.state.norm);
     }).text("normal");
-    b.append("span").on("click", function() {
+    btns.append("span").on("click", function() {
         busy.setState(busy.state.busy);
     }).text("busy");
-    b.append("span").on("click", function() {
+    btns.append("span").on("click", function() {
         busy.setState(busy.state.warn);
     }).text("warning");
 }
 
 function start() {
-    filterTest();
-    patternTest();
-    textWrapTest();
-    busyAndZUITest();
+    function addExample(id, title, example) {
+        var sel = d3.select('#' + id);
+        sel.append("div").text(title);
+        example(sel);
+        var expand = sel.append("div");
+        var code = null;
+        expand.append("span").text("View Source").on("click", function() {
+            if(code) {
+                code.remove();
+                code = null;
+                return;
+            }
+            code = expand.append("pre").append("code").text(example.toString());
+        });
+    }
+
+    addExample("divFilter", "Blur Filter", filterExample);
+    addExample("divPattern", "Fill Pattern", patternExample);
+    addExample("divText", "Text Flow", textWrapExample);
+    addExample("divBusyZUI", "ZUI and Busy Layer", busyZUIExample);
 }
 </script>
 
