@@ -3,23 +3,36 @@
 <head>
     <title>jk-js - Examples</title>
     <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/css/bootstrap.min.css">
     <script src="lib/d3/d3.min.js" charset="utf-8"></script>
     <script src="jkjs/path.js" charset="utf-8"></script>
     <script src="jkjs/effects.js" charset="utf-8"></script>
     <script src="jkjs/text.js" charset="utf-8"></script>
     <script src="jkjs/busy.js" charset="utf-8"></script>
     <script src="jkjs/zui.js" charset="utf-8"></script>
-    <style>
-        body {
-            font-family: "PT Sans", Helvetica, Arial, sans-serif;
+    <style type="text/css">
+        .centeredBlock {
+            display: block;
+            margin: 0 auto;
         }
     </style>
 </head>
 <body onload="start()">
-    <div id="divFilter"></div>
-    <div id="divPattern"></div>
-    <div id="divText"></div>
-    <div id="divBusyZUI"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9" role="main">
+                <div id="divFilter"></div>
+                <div id="divPattern"></div>
+                <div id="divText"></div>
+                <div id="divBusyZUI"></div>
+            </div>
+            <div class="col-md-3">
+                <div class="hidden-print hidden-xs hidden-sm affix" role="complementary">
+                    <ul id="navigation" class="nav"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
 <script>
 function filterExample(sel) {
     var w = 100;
@@ -34,7 +47,7 @@ function filterExample(sel) {
         rect.style({
             "fill": colors[cix]
         });
-    });
+    }).classed("centeredBlock", true);
     var rect = svgFilter.append("rect").attr({
         "x": 0,
         "y": 0,
@@ -53,6 +66,15 @@ function filterExample(sel) {
         "-ms-user-select": "none",
         "user-select": "none"
     }).text("Click Me!");
+    svgFilter.append("rect").attr({
+        "x": 0,
+        "y": 0,
+        "width": w,
+        "height": h
+    }).style({
+        "fill": "none",
+        "stroke": "black"
+    });
 }
 
 function patternExample(sel) {
@@ -67,23 +89,23 @@ function patternExample(sel) {
         pathSel.attr({
             "filter": coolness ? jkjs.effects.getBlurFilter(svgPattern, 2) : null
         });
-    });
+    }).classed("centeredBlock", true);
     var path = new jkjs.Path();
     var htap = new jkjs.Path();
     var pos = 0;
     path.move(0, 20);
     var delta = 10;
-    var w = 100 + delta;
+    var tw = 100 + delta;
     var y1 = 10;
     var y2 = 20;
     var y3 = 30;
     var y4 = 40;
-    while(pos < w) {
+    while(pos < tw) {
         path.quad(pos, y1, pos + delta, y1);
-        htap.quad(w - pos, y4, w - pos - delta, y4);
+        htap.quad(tw - pos, y4, tw - pos - delta, y4);
         pos += 2*delta;
         path.quad(pos, y1, pos, y2);
-        htap.quad(w - pos, y4, w - pos, y3);
+        htap.quad(tw - pos, y4, tw - pos, y3);
     }
     path.add(htap);
     path.close();
@@ -91,6 +113,15 @@ function patternExample(sel) {
         "d": path,
         "stroke": "black",
         "fill": jkjs.effects.getStripePattern(svgPattern, d3.rgb("crimson"), 23)
+    });
+    svgPattern.append("rect").attr({
+        "x": 0,
+        "y": 0,
+        "width": w,
+        "height": h
+    }).style({
+        "fill": "none",
+        "stroke": "black"
     });
 }
 
@@ -116,7 +147,7 @@ function textWrapExample(sel) {
         splitY = clamp(pos[1], false);
         updateText();
     };
-    var svgText = sel.append("svg").style({
+    var svgText = sel.append("svg").classed("centeredBlock", true).style({
         width: w + "px",
         height: h + "px"
     }).on("mousemove", updatePos).on("mouseout", updatePos);
@@ -161,10 +192,15 @@ function textWrapExample(sel) {
 }
 
 function busyZUIExample(sel) {
+    var div = sel.append("div").style({
+        "display": "flex",
+        "align-items": "center",
+        "justify-content": "center"
+    });
     var w = 200;
     var h = 100;
     // ZUI
-    var zui = jkjs.zui.create(sel, {
+    var zui = jkjs.zui.create(div, {
         width: w + "px",
         height: h + "px"
     }, {
@@ -181,7 +217,6 @@ function busyZUIExample(sel) {
         width: 60,
         height: 40
     };
-    var s = zui.svg;
     var inner = zui.inner;
     inner.append("circle").attr({
         "cx": 30,
@@ -200,7 +235,7 @@ function busyZUIExample(sel) {
         "fill": "crimson",
         "stroke": "black"
     });
-    s.append("rect").attr({
+    zui.svg.append("rect").attr({
         "x": 0,
         "y": 0,
         "width": w,
@@ -211,45 +246,82 @@ function busyZUIExample(sel) {
     });
     zui.showAll(false);
     // busy
-    var busy = new jkjs.busy.layer(s, {
+    var busy = new jkjs.busy.layer(zui.svg, {
         x: 0,
         y: 0,
         width: w,
         height: h
     });
-    var btns = sel.append("div");
-    btns.append("span").on("click", function() {
-        busy.setState(jkjs.busy.state.norm);
-    }).text("normal");
-    btns.append("span").on("click", function() {
-        busy.setState(jkjs.busy.state.busy);
-    }).text("busy");
-    btns.append("span").on("click", function() {
-        busy.setState(jkjs.busy.state.warn);
-    }).text("warning");
+    var btnClass = {
+        "btn": true,
+        "btn-default": true
+    };
+    var btnAttr = {
+        "type": "button"
+    };
+
+    function onClick(state, btn) {
+        return function() {
+            busy.setState(state);
+            btnNorm.classed("active", btnNorm === btn);
+            btnBusy.classed("active", btnBusy === btn);
+            btnWarn.classed("active", btnWarn === btn);
+        }
+    }
+
+    var btns = div.append("div").classed({
+        "btn-group-vertical": true,
+        "btn-group-sm": true
+    }).style({
+        "margin": "5px"
+    });
+    var btnNorm = btns.append("button").text("normal").attr(btnAttr).classed("active", true);
+    btnNorm.classed(btnClass).on("click", onClick(jkjs.busy.state.norm, btnNorm));
+    var btnBusy = btns.append("button").text("busy").attr(btnAttr);
+    btnBusy.classed(btnClass).on("click", onClick(jkjs.busy.state.busy, btnBusy));
+    var btnWarn = btns.append("button").text("warning").attr(btnAttr);
+    btnWarn.classed(btnClass).on("click", onClick(jkjs.busy.state.warn, btnWarn));
 }
 
 function start() {
     function addExample(id, title, example) {
-        var sel = d3.select('#' + id);
-        sel.append("div").text(title);
-        example(sel);
-        var expand = sel.append("div");
+        var sel = d3.select(id);
+        sel.append("h3").text(title);
+        var panel = sel.append("div").classed({
+            "panel": true,
+            "panel-default": true
+        });
+        var body = panel.append("div").classed("panel-body", true).style({
+            "position": "relative"
+        });
+        example(body);
         var code = null;
-        expand.append("span").text("View Source").on("click", function() {
+        body.append("span").classed({
+            "btn": true,
+            "btn-xs": true
+        }).style({
+            "position": "absolute",
+            "right": 0,
+            "bottom": 0
+        }).text("View Source").on("click", function() {
             if(code) {
                 code.remove();
                 code = null;
                 return;
             }
-            code = expand.append("pre").append("code").text(example.toString());
+            code = panel.append("div").classed("panel-footer", true);
+            code.append("pre").append("code").text(example.toString());
         });
+        var li = d3.select("#navigation").append("li");
+        li.append("a").attr({
+            "href": id
+        }).text(title);
     }
 
-    addExample("divFilter", "Blur Filter", filterExample);
-    addExample("divPattern", "Fill Pattern", patternExample);
-    addExample("divText", "Text Flow", textWrapExample);
-    addExample("divBusyZUI", "ZUI and Busy Layer", busyZUIExample);
+    addExample("#divFilter", "Blur Filter", filterExample);
+    addExample("#divPattern", "Fill Pattern", patternExample);
+    addExample("#divText", "Text Flow", textWrapExample);
+    addExample("#divBusyZUI", "ZUI and Busy Layer", busyZUIExample);
 }
 </script>
 

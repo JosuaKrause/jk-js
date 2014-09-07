@@ -41,12 +41,11 @@ jkjs.zui = function() {
     var w = viewSize.width;
     var h = viewSize.height;
     var svg = sel.append("svg").attr({
-      "width": realSize.width,
-      "height": realSize.height,
       "viewBox": "0 0 " + w + " " + h
     }).style({
-      "padding": 0,
-      "margin": 0
+      "width": realSize.width,
+      "height": realSize.height,
+      "padding": 0
     });
     // enabling zoom
     var zoom = d3.behavior.zoom();
