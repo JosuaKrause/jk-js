@@ -11,9 +11,9 @@ jkjs = window.jkjs || {}; // init namespace
 jkjs.busy = function() {
   var outer = this;
 
-  this.imgBusy = "img/busy.gif";
+  this.imgBusy = "jkjs/img/busy.gif";
 
-  this.imgWarn = "img/warning.png";
+  this.imgWarn = "jkjs/img/warning.png";
 
   this.busyClass = "busy";
 
