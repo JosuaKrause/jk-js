@@ -7,6 +7,8 @@
     <script src="path.js" charset="utf-8"></script>
     <script src="effects.js" charset="utf-8"></script>
     <script src="text.js" charset="utf-8"></script>
+    <script src="busy.js" charset="utf-8"></script>
+    <script src="zui.js" charset="utf-8"></script>
     <style>
         body {
             font-family: "PT Sans", Helvetica, Arial, sans-serif;
@@ -35,6 +37,7 @@
     <div>
         <svg id="svgText" />
     </div>
+    <div id="divBusy"></div>
 <script>
 function filterTest() {
     var cix = 0;
@@ -150,10 +153,80 @@ function textWrapTest() {
     updateText();
 }
 
+function busyAndZUITest() {
+    var w = 200;
+    var h = 100;
+    var b = d3.select("#divBusy");
+    // ZUI
+    var zui = jkjs.zui.create(b, {
+        width: w + "px",
+        height: h + "px"
+    }, {
+        width: w,
+        height: h
+    }, function() {
+        return box;
+    }, function(target, translate, scale) {
+        target.attr('transform', 'translate(' + translate + ') scale(' + scale + ')');
+    });
+    var box = {
+        x: 20,
+        y: 10,
+        width: 60,
+        height: 40
+    };
+    var s = zui.svg;
+    var inner = zui.inner;
+    inner.append("circle").attr({
+        "cx": 30,
+        "cy": 20,
+        "r": 10
+    }).style({
+        "fill": "cornflowerblue",
+        "stroke": "black"
+    });
+    inner.append("rect").attr({
+        "x": 60,
+        "y": 30,
+        "width": 20,
+        "height": 20
+    }).style({
+        "fill": "crimson",
+        "stroke": "black"
+    });
+    s.append("rect").attr({
+        "x": 0,
+        "y": 0,
+        "width": w,
+        "height": h
+    }).style({
+        "fill": "none",
+        "stroke": "black"
+    });
+    zui.showAll(false);
+    // busy
+    var busy = new jkjs.busy.layer(s, {
+        x: 0,
+        y: 0,
+        width: w,
+        height: h
+    });
+    b.append("span").on("click", function() {
+        busy.setState(busy.state.norm);
+    }).text("normal");
+    b.append("span").on("click", function() {
+        busy.setState(busy.state.busy);
+    }).text("busy");
+    b.append("span").on("click", function() {
+        busy.setState(busy.state.warn);
+    }).text("warning");
+}
+
 function start() {
     filterTest();
     patternTest();
     textWrapTest();
+    busyAndZUITest();
 }
 </script>
 
