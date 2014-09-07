@@ -19,6 +19,12 @@ jkjs.busy = function() {
 
   this.size = 32;
 
+  this.state = {
+    norm: 0,
+    busy: 1,
+    warn: 2
+  };
+
   /**
    * Adds a layer to a selection.
    *
@@ -26,16 +32,11 @@ jkjs.busy = function() {
    *          The selection.
    * @param rect
    *          The size of the layer. {x, y, width, height}
-   * @returns The layer. The state can be set with <code>layer.setState(layer.state.{norm, busy, warn})</code> and
+   * @returns The layer. The state can be set with <code>setState(jkjs.busy.state.{norm, busy, warn})</code> and
    *          the base selection can be retrieved with <code>layer.getSelection()</code>.
    */
   this.layer = function(sel, rect) {
     var that = this;
-    this.state = {
-      norm: 0,
-      busy: 1,
-      warn: 2
-    };
     var x = rect.x;
     var y = rect.y;
     var w = rect.width;
@@ -57,7 +58,7 @@ jkjs.busy = function() {
     }).on("click", resetState);
 
     function resetState() {
-      that.setState(that.state.norm);
+      that.setState(outer.state.norm);
     }
 
     this.setState = function(state) {
@@ -67,7 +68,7 @@ jkjs.busy = function() {
         "width": 0,
         "height": 0
       };
-      if (state === that.state.norm) {
+      if (state === outer.state.norm) {
         elem.attr({
           "x": x,
           "y": y,
@@ -90,11 +91,11 @@ jkjs.busy = function() {
         "width": size,
         "height": size
       };
-      if (state === that.state.busy) {
+      if (state === outer.state.busy) {
         busy.attr(imgRect);
         warn.attr(emptyRect);
       } else {
-        state === that.state.warn || console.warn("unknown state", state, that);
+        state === outer.state.warn || console.warn("unknown state", state, outer.state);
         busy.attr(emptyRect);
         warn.attr(imgRect);
       }

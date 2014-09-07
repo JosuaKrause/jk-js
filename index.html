@@ -219,13 +219,13 @@ function busyZUIExample(sel) {
     });
     var btns = sel.append("div");
     btns.append("span").on("click", function() {
-        busy.setState(busy.state.norm);
+        busy.setState(jkjs.busy.state.norm);
     }).text("normal");
     btns.append("span").on("click", function() {
-        busy.setState(busy.state.busy);
+        busy.setState(jkjs.busy.state.busy);
     }).text("busy");
     btns.append("span").on("click", function() {
-        busy.setState(busy.state.warn);
+        busy.setState(jkjs.busy.state.warn);
     }).text("warning");
 }
 
