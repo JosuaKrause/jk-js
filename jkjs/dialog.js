@@ -98,16 +98,20 @@ jkjs.dialog = function() {
           that.close();
         }
       };
+      var initStr = init.toString();
       var input = pp.append("input").classed({
         "form-control": true
       }).attr({
-        "value": init
+        "value": initStr
       }).on("input", validate).on("keypress", function() {
         if (d3.event.which === 13) {
           done();
         }
       });
-      input.node().focus();
+      var inputNode = input.node();
+      inputNode.setSelectionRange(0, initStr.length);
+      inputNode.focus();
+      inputNode.scrollIntoViewIfNeeded();
       var btns = pp.append("span").classed({
         "input-group-btn": true
       });

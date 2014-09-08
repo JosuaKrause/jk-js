@@ -8,6 +8,5 @@ TODO packages:
   * (handling byte array bit sets)
   * defer calls
   * animation
-  * dialog
   * search
   * io

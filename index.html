@@ -23,13 +23,7 @@
 <body onload="start()">
     <div class="container">
         <div class="row">
-            <div class="col-md-9" role="main">
-                <div id="divFilter"></div>
-                <div id="divPattern"></div>
-                <div id="divText"></div>
-                <div id="divBusyZUI"></div>
-                <div id="divInput"></div>
-            </div>
+            <div id="content" class="col-md-9" role="main"></div>
             <div class="col-md-3">
                 <div class="hidden-print hidden-xs hidden-sm affix" role="complementary">
                     <ul id="navigation" class="nav"></ul>
@@ -308,11 +302,13 @@ function inputExample(sel) {
 
     function onClick() {
         input.show(circle, curNum, function(txt) {
-            var num = parseInt(txt);
-            return num >= 0 && num <= 10 ? num : null;
+            var t = txt.trim();
+            var num = parseInt(t);
+            if(num.toString() !== t || num < 0 || num > 10) return null;
+            return num;
         }, function(num) {
             curNum = num;
-            text.text("" + num);
+            text.text(num.toString());
         });
     }
 
@@ -332,7 +328,7 @@ function inputExample(sel) {
     }).style({
         "text-anchor": "middle",
         "fill": "black"
-    }).on("click", onClick).text("" + curNum);
+    }).on("click", onClick).text(curNum.toString());
     zui.svg.append("rect").attr({
         "x": 0,
         "y": 0,
@@ -346,9 +342,12 @@ function inputExample(sel) {
 }
 
 function start() {
-    function addExample(id, title, example) {
-        var sel = d3.select(id);
+    function addExample(id, title, example, help) {
+        var sel = d3.select("#content").append("div").attr({
+            "id": id
+        });
         sel.append("h3").text(title);
+        help && sel.append("p").text(help);
         var panel = sel.append("div").classed({
             "panel": true,
             "panel-default": true
@@ -376,15 +375,26 @@ function start() {
         });
         var li = d3.select("#navigation").append("li");
         li.append("a").attr({
-            "href": id
+            "href": "#" + id
         }).text(title);
     }
 
-    addExample("#divFilter", "Blur Filter", filterExample);
-    addExample("#divPattern", "Fill Pattern", patternExample);
-    addExample("#divText", "Text Flow", textWrapExample);
-    addExample("#divBusyZUI", "ZUI and Busy Layer", busyZUIExample);
-    addExample("#divInput", "Input Dialogs", inputExample);
+    addExample("exampleFilter", "Blur Filter", filterExample,
+        "Blur filters can be used to make text easier to read on different backgrounds. "
+      + "Click on the text to change the background color.");
+    addExample("examplePattern", "Fill Pattern", patternExample,
+        "Stripe patterns fill the given arbitrary shape and adapt to its form.");
+    addExample("exampleText", "Text Flow", textWrapExample,
+        "The text flows and is shortened so that it fits into the given rectangles. "
+      + "Move the mouse to change the size of the rectangles.");
+    addExample("exampleBusyZUI", "ZUI and Busy Layer", busyZUIExample,
+        "The canvas containing the circle and quadrat provides zoom and pan interaction. "
+      + "Double clicking on the canvas zooms to make all objects visible. "
+      + "Clicking on the buttons to the right changes the state of the canvas.");
+    addExample("exampleInput", "Input Dialogs", inputExample,
+        "Clicking on the circle opens an input dialog which determines the shown number. "
+      + "Further help text is shown when clicking on the question mark symbol in the dialog. "
+      + "Note that the canvas also provides zoom and pan interaction.");
 }
 </script>
 
