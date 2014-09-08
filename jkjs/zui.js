@@ -9,6 +9,10 @@ jkjs = window.jkjs || {}; // init namespace
 jkjs.zui = function() {
   var that = this;
 
+  this.applyCanvasZoom = function(target, translate, scale) {
+      target.attr('transform', 'translate(' + translate + ') scale(' + scale + ')');
+  };
+
   this.animationEase = "easeInOutCubic";
 
   this.animationDuration = 750;

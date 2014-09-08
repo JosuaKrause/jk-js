@@ -5,11 +5,14 @@
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="lib/bootstrap/css/bootstrap.min.css">
     <script src="lib/d3/d3.min.js" charset="utf-8"></script>
+    <script src="lib/jquery/jquery.min.js" charset="utf-8"></script>
+    <script src="lib/bootstrap/js/bootstrap.min.js" charset="utf-8"></script>
     <script src="jkjs/path.js" charset="utf-8"></script>
     <script src="jkjs/effects.js" charset="utf-8"></script>
     <script src="jkjs/text.js" charset="utf-8"></script>
     <script src="jkjs/busy.js" charset="utf-8"></script>
     <script src="jkjs/zui.js" charset="utf-8"></script>
+    <script src="jkjs/dialog.js" charset="utf-8"></script>
     <style type="text/css">
         .centeredBlock {
             display: block;
@@ -25,6 +28,7 @@
                 <div id="divPattern"></div>
                 <div id="divText"></div>
                 <div id="divBusyZUI"></div>
+                <div id="divInput"></div>
             </div>
             <div class="col-md-3">
                 <div class="hidden-print hidden-xs hidden-sm affix" role="complementary">
@@ -208,9 +212,7 @@ function busyZUIExample(sel) {
         height: h
     }, function() {
         return box;
-    }, function(target, translate, scale) {
-        target.attr('transform', 'translate(' + translate + ') scale(' + scale + ')');
-    });
+    }, jkjs.zui.applyCanvasZoom);
     var box = {
         x: 20,
         y: 10,
@@ -283,6 +285,66 @@ function busyZUIExample(sel) {
     btnWarn.classed(btnClass).on("click", onClick(jkjs.busy.state.warn, btnWarn));
 }
 
+function inputExample(sel) {
+    // requires jQuery and bootstrap.js
+    var w = 100;
+    var h = 50;
+    var zui = jkjs.zui.create(sel, {
+        width: w + "px",
+        height: h + "px"
+    }, {
+        width: w,
+        height: h
+    }, function() {
+        return {
+            x: 0,
+            y: 0,
+            width: 20,
+            height: 20
+        };
+    }, jkjs.zui.applyCanvasZoom);
+    zui.svg.classed("centeredBlock", true);
+    var curNum = 3;
+
+    function onClick() {
+        input.show(circle, curNum, function(txt) {
+            var num = parseInt(txt);
+            return num >= 0 && num <= 10 ? num : null;
+        }, function(num) {
+            curNum = num;
+            text.text("" + num);
+        });
+    }
+
+    var input = new jkjs.dialog.input("Input a number",
+        "Please put a number between <code>0</code> and <code>10</code> inclusive.");
+    var circle = zui.inner.append("circle").attr({
+        "cx": 10,
+        "cy": 10,
+        "r": 10
+    }).style({
+        "fill": "cornflowerblue",
+        "stroke": "black"
+    }).on("click", onClick);
+    var text = zui.inner.append("text").attr({
+        "x": 10,
+        "y": 15
+    }).style({
+        "text-anchor": "middle",
+        "fill": "black"
+    }).on("click", onClick).text("" + curNum);
+    zui.svg.append("rect").attr({
+        "x": 0,
+        "y": 0,
+        "width": w,
+        "height": h
+    }).style({
+        "fill": "none",
+        "stroke": "black"
+    });
+    zui.showAll(false);
+}
+
 function start() {
     function addExample(id, title, example) {
         var sel = d3.select(id);
@@ -322,6 +384,7 @@ function start() {
     addExample("#divPattern", "Fill Pattern", patternExample);
     addExample("#divText", "Text Flow", textWrapExample);
     addExample("#divBusyZUI", "ZUI and Busy Layer", busyZUIExample);
+    addExample("#divInput", "Input Dialogs", inputExample);
 }
 </script>
 
