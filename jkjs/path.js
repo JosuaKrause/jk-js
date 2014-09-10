@@ -42,6 +42,10 @@ jkjs.Path.prototype.quadBy = function(dmx, dmy, dx, dy) {
 jkjs.Path.prototype.close = function() {
   this.str += " Z";
 };
+jkjs.Path.prototype.addPoint = function(x, y) {
+  this.move(x, y);
+  this.lineBy(0, 0);
+};
 jkjs.Path.prototype.toString = function() {
   return this.str;
 };
