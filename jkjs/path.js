@@ -7,55 +7,67 @@
 jkjs = window.jkjs || {}; // init namespace
 
 jkjs.Path = function() {
-  // we always have a meaningless move before the actual path
-  // so transitioning from an empty path will not try to animate
-  // from an arbitrary position but will emerge at the correct position
-  this.str = "M0 0";
-  this.realstart = this.str.length;
+  this.slack = null;
+  this.strs = [];
 };
 jkjs.Path.prototype.isEmpty = function() {
-  return this.str.length <= this.realstart;
+  return !this.strs.length;
 };
 jkjs.Path.prototype.move = function(x, y) {
-  if (this.isEmpty()) {
-    // we set the meaningless move to the first move so we do not extent the bounding box
-    this.str = "M" + x + " " + y;
-    this.realstart = this.str.length;
+  var str = "M" + x + " " + y;
+  if(!this.slack) {
+    this.slack = str;
   }
-  this.str += " M" + x + " " + y;
+  this.strs.push(str);
 };
 jkjs.Path.prototype.line = function(x, y) {
-  this.str += " L" + x + " " + y;
+  this.strs.push("L" + x + " " + y);
 };
 jkjs.Path.prototype.quad = function(mx, my, x, y) {
-  this.str += " Q" + mx + " " + my + " " + x + " " + y;
+  this.strs.push("Q" + mx + " " + my + " " + x + " " + y);
 };
 jkjs.Path.prototype.moveBy = function(dx, dy) {
-  this.str += " m" + dx + " " + dy;
+  this.strs.push("m" + dx + " " + dy);
 };
 jkjs.Path.prototype.lineBy = function(dx, dy) {
-  this.str += " l" + dx + " " + dy;
+  this.strs.push("l" + dx + " " + dy);
 };
 jkjs.Path.prototype.quadBy = function(dmx, dmy, dx, dy) {
-  this.str += " q" + dmx + " " + dmy + " " + dx + " " + dy;
+  this.strs.push("q" + dmx + " " + dmy + " " + dx + " " + dy);
 };
 jkjs.Path.prototype.close = function() {
-  this.str += " Z";
+  this.strs.push("Z");
 };
 jkjs.Path.prototype.addPoint = function(x, y) {
   this.move(x, y);
   this.lineBy(0, 0);
 };
 jkjs.Path.prototype.toString = function() {
-  return this.str;
+  // we always have a meaningless move before the actual path
+  // so transitioning from an empty path will not try to animate
+  // from an arbitrary position but will emerge at the correct position
+  var str = this.strs.join(' ');
+  if(!this.slack) {
+    if(!str.length) {
+      return "M0 0";
+    }
+    console.warn("meaningless start of path", str);
+    return str;
+  }
+  // str.length is larger than zero
+  return this.slack + " " + str;
 };
 jkjs.Path.prototype.add = function(path) {
   if (path.isEmpty())
-    return;
+    return this;
   if (this.isEmpty()) {
-    this.str = path.str;
-    this.realstart = path.realstart;
-    return;
+    this.slack = path.slack;
   }
-  this.str += path.str.substring(path.realstart);
+  this.strs = this.strs.concat(path.strs);
+  return this;
+};
+// careful when using this method -- it just reverses the order of operations
+jkjs.Path.prototype.reverse = function() {
+  this.strs.reverse();
+  return this;
 };

@@ -93,19 +93,19 @@ function patternExample(sel) {
     var pos = 0;
     path.move(0, 20);
     var delta = 10;
-    var tw = 100 + delta;
     var y1 = 10;
     var y2 = 20;
     var y3 = 30;
     var y4 = 40;
-    while(pos < tw) {
-        path.quad(pos, y1, pos + delta, y1);
-        htap.quad(tw - pos, y4, tw - pos - delta, y4);
-        pos += 2*delta;
+    while(pos < w + delta) {
+        htap.quad(pos - delta, y4, pos - delta, y3);
+        pos += delta;
+        htap.quad(pos, y4, pos - delta, y4);
+        path.quad(pos - delta, y1, pos, y1);
+        pos += delta;
         path.quad(pos, y1, pos, y2);
-        htap.quad(tw - pos, y4, tw - pos, y3);
     }
-    path.add(htap);
+    path.add(htap.reverse());
     path.close();
     var pathSel = svgPattern.append("path").attr({
         "d": path,
