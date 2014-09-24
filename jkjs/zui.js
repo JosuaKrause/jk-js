@@ -43,7 +43,7 @@ jkjs.zui = function() {
     return newZoom;
   }
 
-  this.create = function(sel, realSize, viewSize, getCanvasRect, applyZoom) {
+  this.create = function(sel, realSize, viewSize, getCanvasRect, applyZoom, extent) {
     var ease = that.animationEase;
     var duration = that.animationDuration;
     var canvasMargin = that.margin;
@@ -76,7 +76,11 @@ jkjs.zui = function() {
       applyZoom(target, zoom.translate(), zoom.scale(), w, h, getCanvasRect());
     }
 
-    svg.call(zoom.scaleExtent([ 1 / 6, 12 ]).on("zoom", function() {
+    var ext = extent || [ 1 / 6, 12 ];
+    if(ext.length) {
+      zoom.scaleExtent(ext);
+    }
+    svg.call(zoom.on("zoom", function() {
       setZoom(d3.event.translate, d3.event.scale, false);
     }, true));
 
