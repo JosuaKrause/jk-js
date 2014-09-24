@@ -10,7 +10,12 @@ jkjs.zui = function() {
   var that = this;
 
   this.applyCanvasZoom = function(target, translate, scale) {
-      target.attr('transform', 'translate(' + translate + ') scale(' + scale + ')');
+    target.attr('transform', 'translate(' + translate + ') scale(' + scale + ')');
+  };
+
+  this.applyFixedHeightZoom = function(target, translate, scaleH, w, h, canvasRect) {
+    var scaleV = h / canvasRect.height;
+    target.attr('transform', 'translate(' + translate[0] + ' 0) scale(' + scaleH + ' ' + scaleV + ')');
   };
 
   this.animationEase = "easeInOutCubic";
@@ -68,7 +73,7 @@ jkjs.zui = function() {
     function setZoom(translation, scale, smooth) {
       zoom.translate(translation).scale(scale);
       var target = smooth ? inner.transition().duration(duration).ease(ease) : inner;
-      applyZoom(target, zoom.translate(), zoom.scale());
+      applyZoom(target, zoom.translate(), zoom.scale(), w, h, getCanvasRect());
     }
 
     svg.call(zoom.scaleExtent([ 1 / 6, 12 ]).on("zoom", function() {
