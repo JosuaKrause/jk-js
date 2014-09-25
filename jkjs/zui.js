@@ -59,6 +59,7 @@ jkjs.zui = function() {
     var w, h, rw, rh;
     var svg = sel.append("svg");
     var zoom = null;
+
     function setSize(realSize, viewSize) {
       w = viewSize.width;
       h = viewSize.height;
@@ -74,8 +75,10 @@ jkjs.zui = function() {
       // propagate changes
       if(zoom) {
         svg.on("mousemove.zoom")();
+        setZoom(zoom.translate(), zoom.scale(), false);
       }
-    };
+    }
+
     setSize(realSize, viewSize);
     // enabling zoom
     zoom = d3.behavior.zoom();
@@ -93,6 +96,7 @@ jkjs.zui = function() {
 
     var prevTranslate = null;
     var prevScale = 0;
+
     function setZoom(translation, scale, smooth) {
       zoom.translate(translation);
       zoom.scale(scale);
