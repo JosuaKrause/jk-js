@@ -70,19 +70,47 @@ jkjs.zui = function() {
       setZoom(off, zoom, smooth);
     }
 
+    var prevTranslate = null;
+    var prevScale = 0;
     function setZoom(translation, scale, smooth) {
-      zoom.translate(translation).scale(scale);
+      zoom.translate(translation);
+      zoom.scale(scale);
       var target = smooth ? inner.transition().duration(duration).ease(ease) : inner;
-      applyZoom(target, zoom.translate(), zoom.scale(), w, h, getCanvasRect());
+      applyZoom(target, translation, scale, w, h, getCanvasRect());
+      prevTranslate = translation;
+      prevScale = scale;
     }
 
     var ext = extent || [ 1 / 6, 12 ];
     if(ext.length) {
       zoom.scaleExtent(ext);
     }
-    svg.call(zoom.on("zoom", function() {
-      setZoom(d3.event.translate, d3.event.scale, false);
-    }, true));
+    var sidewaysScroll = false;
+    var onSidewayScroll = false;
+    var onNormalZoom = false;
+    zoom.on("zoom", function() {
+      var t = d3.event.translate;
+      var s = d3.event.scale;
+      var eve = d3.event.sourceEvent;
+      var initSidewayScroll = sidewaysScroll && prevTranslate && eve instanceof WheelEvent && eve.wheelDeltaX;
+      if(onSidewayScroll || (!onNormalZoom && initSidewayScroll)) {
+        t[0] = prevTranslate[0] + eve.wheelDeltaX;
+        t[1] = prevTranslate[1];
+        s = prevScale !== 0 ? prevScale : s;
+        onSidewayScroll = true;
+        setZoom(t, s, false);
+        return;
+      }
+      setZoom(t, s, false);
+      onNormalZoom = true;
+    });
+    zoom.on("zoomend", function() {
+      onSidewayScroll = false;
+      onNormalZoom = false;
+      // simulate an empty mouse move to remove the internal state of the "zoom" event
+      svg.on("mousemove.zoom")();
+    });
+    svg.call(zoom);
 
     function showAll(smooth) {
       if (!getCanvasRect)
@@ -95,6 +123,10 @@ jkjs.zui = function() {
     });
     // the object
     return {
+      sidewaysScroll: function(set) {
+        if(!arguments.length) return sidewaysScroll;
+        sidewaysScroll = !!set;
+      },
       showRectangle: showRectangle,
       setZoom: setZoom,
       showAll: showAll,
