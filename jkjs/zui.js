@@ -148,12 +148,30 @@ jkjs.zui = function() {
         if(!arguments.length) return sidewaysScroll;
         sidewaysScroll = !!set;
       },
+      move: function(dx, dy, smooth) {
+        var t = zoom.translate();
+        t[0] += dx;
+        t[1] += dy;
+        setZoom(t, zoom.scale(), smooth);
+      },
+      getScale: function() {
+        return zoom.scale();
+      },
+      zoomTo: function(x, y, factor, smooth) {
+        var off = zoom.translate();
+        var s = zoom.scale();
+        s = zoomTo(x, y, factor, s, off);
+        setZoom(off, s, smooth);
+      },
       showRectangle: showRectangle,
       setZoom: setZoom,
       showAll: showAll,
       inner: inner,
       svg: svg,
-      setSize: setSize
+      setSize: setSize,
+      getVisibleRect: function() {
+        return that.computeVisibleRect(zoom.translate(), zoom.scale(), w, h);
+      }
     };
   }
 
