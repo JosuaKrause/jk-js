@@ -56,17 +56,29 @@ jkjs.zui = function() {
     var ease = that.animationEase;
     var duration = that.animationDuration;
     var canvasMargin = that.margin;
-    var w = viewSize.width;
-    var h = viewSize.height;
-    var svg = sel.append("svg").attr({
-      "viewBox": "0 0 " + w + " " + h
-    }).style({
-      "width": realSize.width,
-      "height": realSize.height,
-      "padding": 0
-    });
+    var w, h, rw, rh;
+    var svg = sel.append("svg");
+    var zoom = null;
+    function setSize(realSize, viewSize) {
+      w = viewSize.width;
+      h = viewSize.height;
+      rw = realSize.width;
+      rh = realSize.height;
+      svg.attr({
+        "viewBox": "0 0 " + w + " " + h
+      }).style({
+        "width": rw,
+        "height": rh,
+        "padding": 0
+      });
+      // propagate changes
+      if(zoom) {
+        svg.on("mousemove.zoom")();
+      }
+    };
+    setSize(realSize, viewSize);
     // enabling zoom
-    var zoom = d3.behavior.zoom();
+    zoom = d3.behavior.zoom();
     var inner = svg.append("g");
 
     function showRectangle(rect, margin, fit, smooth) {
@@ -140,7 +152,8 @@ jkjs.zui = function() {
       setZoom: setZoom,
       showAll: showAll,
       inner: inner,
-      svg: svg
+      svg: svg,
+      setSize: setSize
     };
   }
 

@@ -61,6 +61,7 @@ jkjs.busy = function() {
       that.setState(outer.state.norm);
     }
 
+    var curState = outer.state.norm;
     this.setState = function(state) {
       var emptyRect = {
         "x": 0,
@@ -68,6 +69,7 @@ jkjs.busy = function() {
         "width": 0,
         "height": 0
       };
+      curState = state;
       if (state === outer.state.norm) {
         elem.attr({
           "x": x,
@@ -98,7 +100,20 @@ jkjs.busy = function() {
         state === outer.state.warn || console.warn("unknown state", state, outer.state);
         busy.attr(emptyRect);
         warn.attr(imgRect);
+        curState = outer.state.warn;
       }
+    };
+
+    this.getState = function() {
+      return curState;
+    };
+
+    this.setRect = function(rect) {
+      x = rect.x;
+      y = rect.y;
+      w = rect.width;
+      h = rect.height;
+      this.setState(this.getState());
     };
 
     this.getSelection = function() {
