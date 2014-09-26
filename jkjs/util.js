@@ -103,6 +103,16 @@ jkjs.util = function() {
     });
   }
 
+  this.rectIntersect = function(rectA, rectB) {
+    if(rectA.width <= 0 || rectA.height <= 0 || rectB.width <= 0 || rectB.height <= 0) {
+      return false;
+    }
+    return rectB.x + rectB.width  > rectA.x &&
+           rectB.y + rectB.height > rectA.y &&
+           rectB.x < rectA.x + rectA.width &&
+           rectB.y < rectA.y + rectA.height;
+  };
+
 }; // jkjs.util
 
 jkjs.util = new jkjs.util(); // create instance
