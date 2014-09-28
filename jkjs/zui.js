@@ -9,7 +9,7 @@ jkjs = window.jkjs || {}; // init namespace
 jkjs.zui = function() {
   var that = this;
 
-  this.applyCanvasZoom = function(target, translate, scale) {
+  this.applyCanvasZoom = function(target, translate, scale, w, h, canvasRect, isSmooth) {
     target.attr('transform', 'translate(' + translate + ') scale(' + scale + ')');
   };
 
@@ -30,6 +30,11 @@ jkjs.zui = function() {
   this.animationEase = "easeInOutCubic";
 
   this.animationDuration = 750;
+
+  this.asTransition = function(sel, smooth) {
+    if(!smooth) return sel;
+    return sel.transition().duration(that.animationDuration).ease(that.animationEase);
+  };
 
   this.margin = 10;
 
@@ -53,8 +58,6 @@ jkjs.zui = function() {
   }
 
   this.create = function(sel, realSize, viewSize, getCanvasRect, applyZoom, extent) {
-    var ease = that.animationEase;
-    var duration = that.animationDuration;
     var canvasMargin = that.margin;
     var w, h, rw, rh;
     var svg = sel.append("svg");
@@ -100,7 +103,7 @@ jkjs.zui = function() {
     function setZoom(translation, scale, smooth) {
       zoom.translate(translation);
       zoom.scale(scale);
-      var target = smooth ? inner.transition().duration(duration).ease(ease) : inner;
+      var target = that.asTransition(inner, smooth);
       applyZoom(target, translation, scale, w, h, getCanvasRect(), smooth);
       prevTranslate = translation;
       prevScale = scale;
