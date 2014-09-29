@@ -113,6 +113,11 @@ jkjs.util = function() {
            rectB.y < rectA.y + rectA.height;
   };
 
+  this.getFontColor = function(color) {
+    var grayValue = 0.2126 * color.r / 255 + 0.7152 * color.g / 255 + 0.0722 * color.b / 255;
+    return grayValue > 0.5 ? d3.rgb("black") : d3.rgb("white");
+  };
+
 }; // jkjs.util
 
 jkjs.util = new jkjs.util(); // create instance
