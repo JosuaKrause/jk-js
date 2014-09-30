@@ -38,9 +38,13 @@ jkjs.Path.prototype.quadBy = function(dmx, dmy, dx, dy) {
 jkjs.Path.prototype.close = function() {
   this.strs.push("Z");
 };
-jkjs.Path.prototype.addPoint = function(x, y) {
-  this.move(x, y);
-  this.lineBy(0, 0);
+jkjs.Path.prototype.addPoint = function(x, y, size) {
+  var s2 = size * 0.5;
+  this.move(x - s2, y - s2);
+  this.line(x + s2, y - s2);
+  this.line(x + s2, y + s2);
+  this.line(x - s2, y + s2);
+  this.close();
 };
 jkjs.Path.prototype.toString = function() {
   // we always have a meaningless move before the actual path
