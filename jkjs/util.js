@@ -118,6 +118,26 @@ jkjs.util = function() {
     return grayValue > 0.5 ? d3.rgb("black") : d3.rgb("white");
   };
 
+  this.getRemaining = function(ixs, minus) {
+    // sorted ixs and minus
+    var p = 0;
+    var q = 0;
+    var res = [];
+    while(p < ixs.length) {
+      var cur = ixs[p];
+      var m = q < minus.length ? minus[q] : Number.POSITIVE_INFINITY;
+      if(cur < m) {
+        res.push(cur);
+        p += 1;
+      } else if(cur > m) {
+        q += 1;
+      } else { // cur == m
+        p += 1;
+      }
+    }
+    return res;
+  };
+
 }; // jkjs.util
 
 jkjs.util = new jkjs.util(); // create instance
