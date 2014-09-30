@@ -109,7 +109,7 @@ jkjs.util = function() {
     }
     return rectB.x + rectB.width  > rectA.x &&
            rectB.y + rectB.height > rectA.y &&
-           rectB.x < rectA.x + rectA.width &&
+           rectB.x < rectA.x + rectA.width  &&
            rectB.y < rectA.y + rectA.height;
   };
 
@@ -136,6 +136,19 @@ jkjs.util = function() {
       }
     }
     return res;
+  };
+
+  this.randomNorm = function(maxRad, norm) {
+    // maxRad should be >= 1e-3
+    for(;;) {
+      var rnd = ((Math.random() + Math.random() + Math.random() + Math.random() + Math.random() + Math.random()) - 3) / 3; // stddev: ~1, mean: ~0
+      if(arguments.length < 1 || maxRad < 1e-3 || Math.abs(rnd) <= maxRad) {
+        if(arguments.length >= 2 && norm) {
+          return rnd / maxRad;
+        }
+        return rnd;
+      }
+    }
   };
 
 }; // jkjs.util
