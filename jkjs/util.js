@@ -151,6 +151,14 @@ jkjs.util = function() {
     }
   };
 
+  this.timing = function(cb, obj, args) {
+    var from = new Date().getTime();
+    var res = cb.apply(obj, args);
+    var to = new Date().getTime();
+    console.log((to - from) + "ms", obj, args);
+    return res;
+  }
+
 }; // jkjs.util
 
 jkjs.util = new jkjs.util(); // create instance
