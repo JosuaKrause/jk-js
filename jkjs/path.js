@@ -15,35 +15,40 @@ jkjs.Path.prototype.isEmpty = function() {
 };
 jkjs.Path.prototype.move = function(x, y) {
   if(!this.slack.length) {
-    this.slack = "M" + x + " " + y;
+    this.slack = "M".concat(x, " ", y);
   }
-  this.strs.push(" M" + x + " " + y);
+  this.strs.push(" M".concat(x, " ", y));
 };
 jkjs.Path.prototype.line = function(x, y) {
-  this.strs.push(" L" + x + " " + y);
+  this.strs.push(" L".concat(x, " ", y));
 };
 jkjs.Path.prototype.quad = function(mx, my, x, y) {
-  this.strs.push(" Q" + mx + " " + my + " " + x + " " + y);
+  this.strs.push(" Q".concat(mx, " ", my, " ", x, " ", y));
 };
 jkjs.Path.prototype.moveBy = function(dx, dy) {
-  this.strs.push(" m" + dx + " " + dy);
+  this.strs.push(" m".concat(dx, " ", dy));
 };
 jkjs.Path.prototype.lineBy = function(dx, dy) {
-  this.strs.push(" l" + dx + " " + dy);
+  this.strs.push(" l".concat(dx, " ", dy));
 };
 jkjs.Path.prototype.quadBy = function(dmx, dmy, dx, dy) {
-  this.strs.push(" q" + dmx + " " + dmy + " " + dx + " " + dy);
+  this.strs.push(" q".concat(dmx, " ", dmy, " ", dx, " ", dy));
 };
 jkjs.Path.prototype.close = function() {
   this.strs.push(" Z");
 };
-jkjs.Path.prototype.addPoint = function(x, y, size) {
+jkjs.Path.prototype.pointAdder = function(size) {
+  // for tight loops
+  var that = this;
   var s2 = size * 0.5;
-  this.move(x - s2, y - s2);
-  this.line(x + s2, y - s2);
-  this.line(x + s2, y + s2);
-  this.line(x - s2, y + s2);
-  this.close();
+  var down  = " l0 " + size;
+  var right = " l" + size + " 0";
+  var up    = " l0 " + (-size);
+  var left  = " l" + (-size) + " 0";
+  return function(x, y) {
+    that.move(x - s2, y - s2);
+    that.strs.push(down, right, up, left, " Z");
+  };
 };
 jkjs.Path.prototype.toString = function() {
   // we always have a meaningless move before the actual path
@@ -53,7 +58,7 @@ jkjs.Path.prototype.toString = function() {
     if(!this.strs.length) {
       return "M0 0";
     }
-    console.warn("meaningless start of path", str);
+    console.warn("meaningless start of path", this.strs);
   }
   // this.strs.length is larger than zero
   return String.prototype.concat.apply(this.slack, this.strs);
