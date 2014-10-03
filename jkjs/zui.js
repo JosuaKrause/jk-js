@@ -15,6 +15,15 @@ jkjs.zui = function() {
 
   this.applyFixedHeightZoom = function(target, translate, scaleH, w, h, canvasRect, isSmooth) {
     var scaleV = canvasRect.height > 0 ? h / canvasRect.height : 1;
+    if(isNaN(scaleH)) {
+      scaleH = 1;
+    }
+    if(isNaN(scaleV)) {
+      scaleV = 1;
+    }
+    if(isNaN(translate[0])) {
+      translate[0] = 0;
+    }
     target.attr('transform', 'translate(' + translate[0] + ' 0) scale(' + scaleH + ' ' + scaleV + ')');
   };
 
