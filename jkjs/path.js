@@ -61,7 +61,16 @@ jkjs.Path.prototype.toString = function() {
     console.warn("meaningless start of path", this.strs);
   }
   // this.strs.length is larger than zero
-  return String.prototype.concat.apply(this.slack, this.strs);
+  if(this.strs.length <= 100000) {
+    return String.prototype.concat.apply(this.slack, this.strs);
+  }
+  console.warn("slow path");
+  // slow concatenation for very long paths
+  var res = this.slack;
+  this.strs.forEach(function(s) {
+    res += s;
+  });
+  return res;
 };
 jkjs.Path.prototype.add = function(path) {
   if (path.isEmpty())
