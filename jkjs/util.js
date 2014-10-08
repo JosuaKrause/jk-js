@@ -155,10 +155,26 @@ jkjs.util = function() {
     var from = new Date().getTime();
     var res = cb.apply(obj, args);
     var to = new Date().getTime();
-    console.log((to - from) + "ms", obj, args);
+    if(obj || args) {
+      console.log((to - from) + "ms", obj, args);
+    } else {
+      console.log((to - from) + "ms");
+    }
     return res;
   }
 
 }; // jkjs.util
 
 jkjs.util = new jkjs.util(); // create instance
+
+if(!String.prototype.startsWith) {
+  Object.defineProperty(String.prototype, 'startsWith', {
+    enumerable: false,
+    configurable: false,
+    writable: false,
+    value: function(searchString, position) {
+      position = position || 0;
+      return this.lastIndexOf(searchString, position) === position;
+    }
+  });
+}
