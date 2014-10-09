@@ -20,6 +20,12 @@ jkjs.stat = function() {
     return res;
   }
 
+  this.sum = function(arr) {
+    return aggregate(arr, 0, function(cur, agg) {
+      return agg + cur;
+    });
+  };
+
   this.max = function(arr) {
     return aggregate(arr, Number.NEGATIVE_INFINITY, function(cur, agg) {
       return Math.max(cur, agg);
@@ -33,9 +39,7 @@ jkjs.stat = function() {
   };
 
   this.mean = function(arr) {
-    return aggregate(arr, 0, function(cur, agg) {
-      return agg + cur;
-    }) / arr.length;
+    return that.sum(arr) / arr.length;
   };
 
   this.stddev = function(arr, mean) {
@@ -110,6 +114,29 @@ jkjs.stat = function() {
     pearson: function(arrA, arrB) {
       return 1 - Math.abs(that.pearson(arrA, arrB));
     }
+  };
+
+  /**
+   * Compute the entropy of the given distribution.
+   *
+   * @param binCounts An array of the distribution of the distinct values.
+   *    Every element in the array represents the count of one distinct value.
+   *    The order of the elements is not important.
+   * @param totalCount (optional) The sum of all bins if already computed.
+   * @return The entropy of the distribution in nat
+   *    (http://en.wikipedia.org/wiki/Nat_%28information%29).
+   */
+  this.entropy = function(binCounts, totalCount) {
+    if(arguments.length < 2) {
+      totalCount = that.sum(binCounts);
+    }
+    return -aggregate(binCounts, 0, function(cur, agg) {
+      if(cur === 0) {
+        return agg;
+      }
+      var p = cur / totalCount;
+      return agg + p * Math.log(p);
+    });
   };
 }; // jkjs.stat
 
