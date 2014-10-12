@@ -44,11 +44,17 @@ jkjs.Path.prototype.pointAdder = function(size) {
   var down  = " l0 " + size;
   var right = " l" + size + " 0";
   var up    = " l0 " + (-size);
-  var left  = " l" + (-size) + " 0";
   return function(x, y) {
     that.move(x - s2, y - s2);
-    that.strs.push(down, right, up, left, " Z");
+    that.strs.push(down, right, up, " Z");
   };
+};
+jkjs.Path.prototype.fillRect = function(x, y, w, h) {
+  this.move(x, y);
+  this.lineBy(w, 0);
+  this.lineBy(0, h);
+  this.lineBy(-w, 0);
+  this.close();
 };
 jkjs.Path.prototype.toString = function() {
   // we always have a meaningless move before the actual path
