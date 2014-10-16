@@ -182,3 +182,10 @@ if(!String.prototype.startsWith) {
     }
   });
 }
+
+if(typeof Number.isFinite !== 'function') {
+  Number.isFinite = function isFinite(value) {
+    if(typeof value !== 'number') return false;
+    return !(value !== value || value === Number.NEGATIVE_INFINITY || value === Number.POSITIVE_INFINITY);
+  };
+}
