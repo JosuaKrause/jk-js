@@ -155,14 +155,14 @@ jkjs.util = function() {
     }
   };
 
-  this.timing = function(cb, obj, args) {
+  this.timing = function(name, cb, obj, args) {
     var from = new Date().getTime();
     var res = cb.apply(obj, args);
     var to = new Date().getTime();
     if(obj || args) {
-      console.log((to - from) + "ms", obj, args);
+      console.log(name, (to - from) + "ms", obj, args);
     } else {
-      console.log((to - from) + "ms");
+      console.log(name, (to - from) + "ms");
     }
     return res;
   }
