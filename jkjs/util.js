@@ -124,6 +124,7 @@ jkjs.util = function() {
   };
 
   this.ensureSorted = function(arr) {
+    if(!arr.length) return;
     var prev = Number.NEGATIVE_INFINITY;
     for(var i = 0;i < arr.length;i += 1) {
       var v = arr[i];
@@ -185,7 +186,7 @@ jkjs.util = function() {
   };
 
   this.getRemainingIter = function(ixs, minus, cb) {
-    if(!ixs.length || !minus.length) {
+    if(!ixs.length || !minus.length) { // TODO check whether this optimizes
       ixs.forEach(cb);
       return;
     }
