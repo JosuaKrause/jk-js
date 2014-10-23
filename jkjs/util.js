@@ -157,6 +157,42 @@ jkjs.util = function() {
     return res;
   };
 
+  this.getRemainingIter = function(ixs, minus, cb) {
+    if(!ixs.length || !minus.length) {
+      ixs.forEach(cb);
+      return;
+    }
+    // sorted ixs and minus
+    var p = 0;
+    var q = 0;
+    var prevA = Number.NEGATIVE_INFINITY;
+    var prevB = Number.NEGATIVE_INFINITY;
+    while(p < ixs.length) {
+      var cur = ixs[p];
+      var m = q < minus.length ? minus[q] : Number.POSITIVE_INFINITY;
+      if(cur >= prevA) {
+        prevA = cur;
+      } else {
+        prevA = Number.POSITIVE_INFINITY;
+      }
+      if(m >= prevB) {
+        prevB = m;
+      } else {
+        prevB = Number.POSITIVE_INFINITY;
+      }
+      if(cur < m) {
+        cb(cur);
+        p += 1;
+      } else if(cur > m) {
+        q += 1;
+      } else { // cur == m
+        p += 1;
+      }
+    }
+    if(!Number.isFinite(prevA)) console.warn("array is not sorted", ixs, new Error().stack);
+    if(!Number.isFinite(prevB)) console.warn("array is not sorted", minus, new Error().stack);
+  };
+
   this.applyPerm = function(arr, perm) {
     var tmp = arr.slice();
     if(tmp.length !== perm.length) console.warn(tmp.length + " != " + perm.length, new Error().stack);
