@@ -152,9 +152,17 @@ jkjs.util = function() {
         p += 1;
       }
     }
-    if(!Number.isFinite(prevA)) console.warn("array is not sorted", ixs);
-    if(!Number.isFinite(prevB)) console.warn("array is not sorted", minus);
+    if(!Number.isFinite(prevA)) console.warn("array is not sorted", ixs, new Error().stack);
+    if(!Number.isFinite(prevB)) console.warn("array is not sorted", minus, new Error().stack);
     return res;
+  };
+
+  this.applyPerm = function(arr, perm) {
+    var tmp = arr.slice();
+    if(tmp.length !== perm.length) console.warn(tmp.length + " != " + perm.length, new Error().stack);
+    for(var i = 0;i < perm.length;i += 1) {
+      arr[i] = tmp[perm[i]];
+    }
   };
 
   this.randomNorm = function(maxRad, norm) {
