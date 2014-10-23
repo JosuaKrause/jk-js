@@ -7,6 +7,7 @@
 jkjs = window.jkjs || {}; // init namespace
 
 jkjs.util = function() {
+  var that = this;
 
   /**
    * Converts a list of classes into an object that can be used by the d3 classed function to activate all those classes.
@@ -122,6 +123,28 @@ jkjs.util = function() {
     return grayValue > 0.5 ? d3.rgb("black") : d3.rgb("white");
   };
 
+  this.requireSorted = function(ixs, name) {
+    console.warn("checking " + name);
+    var prev = Number.NEGATIVE_INFINITY;
+    var run = false;
+    var swapped = [];
+    ixs.forEach(function(v) {
+      if(v < prev) {
+        if(!run) {
+          swapped.push(prev);
+        }
+        swapped.push(v);
+        run = true;
+      } else {
+        run = false;
+      }
+      prev = v;
+    });
+    if(swapped.length) {
+      console.warn(name + " not sorted", swapped, ixs, new Error().stack);
+    }
+  };
+
   this.getRemaining = function(ixs, minus) {
     if(!ixs.length || !minus.length) return ixs;
     // sorted ixs and minus
@@ -133,15 +156,19 @@ jkjs.util = function() {
     while(p < ixs.length) {
       var cur = ixs[p];
       var m = q < minus.length ? minus[q] : Number.POSITIVE_INFINITY;
-      if(cur >= prevA) {
-        prevA = cur;
-      } else {
-        prevA = Number.POSITIVE_INFINITY;
+      if(!isNaN(prevA)) {
+        if(cur >= prevA) {
+          prevA = cur;
+        } else {
+          prevA = Number.NaN;
+        }
       }
-      if(m >= prevB) {
-        prevB = m;
-      } else {
-        prevB = Number.POSITIVE_INFINITY;
+      if(!isNaN(prevB)) {
+        if(m >= prevB) {
+          prevB = m;
+        } else {
+          prevB = Number.NaN;
+        }
       }
       if(cur < m) {
         res.push(cur);
@@ -152,8 +179,8 @@ jkjs.util = function() {
         p += 1;
       }
     }
-    if(!Number.isFinite(prevA)) console.warn("array is not sorted", ixs, new Error().stack);
-    if(!Number.isFinite(prevB)) console.warn("array is not sorted", minus, new Error().stack);
+    if(isNaN(prevA)) that.requireSorted(ixs, "base array");
+    if(isNaN(prevB)) that.requireSorted(ixs, "remove array");;
     return res;
   };
 
@@ -170,15 +197,19 @@ jkjs.util = function() {
     while(p < ixs.length) {
       var cur = ixs[p];
       var m = q < minus.length ? minus[q] : Number.POSITIVE_INFINITY;
-      if(cur >= prevA) {
-        prevA = cur;
-      } else {
-        prevA = Number.POSITIVE_INFINITY;
+      if(!isNaN(prevA)) {
+        if(cur >= prevA) {
+          prevA = cur;
+        } else {
+          prevA = Number.NaN;
+        }
       }
-      if(m >= prevB) {
-        prevB = m;
-      } else {
-        prevB = Number.POSITIVE_INFINITY;
+      if(!isNaN(prevB)) {
+        if(m >= prevB) {
+          prevB = m;
+        } else {
+          prevB = Number.NaN;
+        }
       }
       if(cur < m) {
         cb(cur);
@@ -189,8 +220,8 @@ jkjs.util = function() {
         p += 1;
       }
     }
-    if(!Number.isFinite(prevA)) console.warn("array is not sorted", ixs, new Error().stack);
-    if(!Number.isFinite(prevB)) console.warn("array is not sorted", minus, new Error().stack);
+    if(isNaN(prevA)) that.requireSorted(ixs, "base array");
+    if(isNaN(prevB)) that.requireSorted(ixs, "remove array");;
   };
 
   this.applyPerm = function(arr, perm) {

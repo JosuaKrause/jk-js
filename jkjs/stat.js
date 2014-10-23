@@ -77,8 +77,8 @@ jkjs.stat = function() {
     var stdA = that.stddev(arrA, meanA);
     var stdB = that.stddev(arrB, meanB);
     if(stdA === 0.0 || stdB === 0.0) {
-      console.warn("standard deviation is zero", stdA, stdB);
-      return stdA === stdB ? 0 : 1;
+      console.warn("standard deviation is zero", stdA, stdB, meanA, meanB);
+      return meanA === meanB ? 0 : 1;
     }
     var sum = computeDistance(arrA, arrB, function(a, b) {
       return (a - meanA) * (b - meanB);
