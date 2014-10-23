@@ -14,27 +14,27 @@ jkjs.stat = function() {
     var res = init;
     for(var i = 0;i < arr.length;i += 1) {
       if(!isNaN(arr[i])) {
-        res = aggr(arr[i], res);
+        res = aggr(res, arr[i]);
       }
     }
     return res;
   }
 
   this.sum = function(arr) {
-    return aggregate(arr, 0, function(cur, agg) {
+    return aggregate(arr, 0, function(agg, cur) {
       return agg + cur;
     });
   };
 
   this.max = function(arr) {
-    return aggregate(arr, Number.NEGATIVE_INFINITY, function(cur, agg) {
-      return Math.max(cur, agg);
+    return aggregate(arr, Number.NEGATIVE_INFINITY, function(agg, cur) {
+      return Math.max(agg, cur);
     });
   };
 
   this.min = function(arr) {
-    return aggregate(arr, Number.POSITIVE_INFINITY, function(cur, agg) {
-      return Math.min(cur, agg);
+    return aggregate(arr, Number.POSITIVE_INFINITY, function(agg, cur) {
+      return Math.min(agg, cur);
     });
   };
 
@@ -43,11 +43,14 @@ jkjs.stat = function() {
   };
 
   this.stddev = function(arr, mean) {
+    var m;
     if(arguments.length < 2) {
-      mean = that.mean(arr);
+      m = that.mean(arr);
+    } else {
+      m = mean;
     }
-    return Math.sqrt(aggregate(arr, 0, function(cur, agg) {
-      return agg + (cur - mean) * (cur - mean);
+    return Math.sqrt(aggregate(arr, 0, function(agg, cur) {
+      return agg + (cur - m) * (cur - m);
     }) / arr.length);
   };
 
@@ -127,14 +130,17 @@ jkjs.stat = function() {
    *    (http://en.wikipedia.org/wiki/Nat_%28information%29).
    */
   this.entropy = function(binCounts, totalCount) {
+    var tc;
     if(arguments.length < 2) {
-      totalCount = that.sum(binCounts);
+      tc = that.sum(binCounts);
+    } else {
+      tc = totalCount;
     }
-    return -aggregate(binCounts, 0, function(cur, agg) {
+    return -aggregate(binCounts, 0, function(agg, cur) {
       if(cur === 0) {
         return agg;
       }
-      var p = cur / totalCount;
+      var p = cur / tc;
       return agg + p * Math.log(p);
     });
   };

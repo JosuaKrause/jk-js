@@ -116,19 +116,31 @@ jkjs.util = function() {
 
   this.getGrayValue = function(color) {
     return 0.2126 * color.r / 255 + 0.7152 * color.g / 255 + 0.0722 * color.b / 255;
-  }
+  };
 
   this.getFontColor = function(color) {
     var grayValue = this.getGrayValue(color);
     return grayValue > 0.5 ? d3.rgb("black") : d3.rgb("white");
   };
 
-  this.requireSorted = function(ixs, name) {
-    console.warn("checking " + name);
+  this.ensureSorted = function(arr) {
+    var prev = Number.NEGATIVE_INFINITY;
+    for(var i = 0;i < arr.length;i += 1) {
+      var v = arr[i];
+      if(v < prev) {
+        requireSorted(arr);
+        return;
+      }
+      prev = v;
+    }
+  };
+
+  function requireSorted(arr) {
+    console.warn("slow sort test");
     var prev = Number.NEGATIVE_INFINITY;
     var run = false;
     var swapped = [];
-    ixs.forEach(function(v) {
+    arr.forEach(function(v) {
       if(v < prev) {
         if(!run) {
           swapped.push(prev);
@@ -141,35 +153,22 @@ jkjs.util = function() {
       prev = v;
     });
     if(swapped.length) {
-      console.warn(name + " not sorted", swapped, ixs, new Error().stack);
+      console.warn("array not sorted", swapped, arr, new Error().stack);
+      arr.sort(d3.ascending);
     }
   };
 
   this.getRemaining = function(ixs, minus) {
     if(!ixs.length || !minus.length) return ixs;
     // sorted ixs and minus
+    that.ensureSorted(ixs);
+    that.ensureSorted(minus);
     var p = 0;
     var q = 0;
     var res = [];
-    var prevA = Number.NEGATIVE_INFINITY;
-    var prevB = Number.NEGATIVE_INFINITY;
-    while(p < ixs.length) {
+    while(p < ixs.length && q < minus.length) {
       var cur = ixs[p];
-      var m = q < minus.length ? minus[q] : Number.POSITIVE_INFINITY;
-      if(!isNaN(prevA)) {
-        if(cur >= prevA) {
-          prevA = cur;
-        } else {
-          prevA = Number.NaN;
-        }
-      }
-      if(!isNaN(prevB)) {
-        if(m >= prevB) {
-          prevB = m;
-        } else {
-          prevB = Number.NaN;
-        }
-      }
+      var m = minus[q];
       if(cur < m) {
         res.push(cur);
         p += 1;
@@ -179,8 +178,9 @@ jkjs.util = function() {
         p += 1;
       }
     }
-    if(isNaN(prevA)) that.requireSorted(ixs, "base array");
-    if(isNaN(prevB)) that.requireSorted(ixs, "remove array");;
+    for(;p < ixs.length;p += 1) {
+      res.push(ixs[p]);
+    }
     return res;
   };
 
@@ -190,27 +190,13 @@ jkjs.util = function() {
       return;
     }
     // sorted ixs and minus
+    that.ensureSorted(ixs);
+    that.ensureSorted(minus);
     var p = 0;
     var q = 0;
-    var prevA = Number.NEGATIVE_INFINITY;
-    var prevB = Number.NEGATIVE_INFINITY;
-    while(p < ixs.length) {
+    while(p < ixs.length && q < minus.length) {
       var cur = ixs[p];
-      var m = q < minus.length ? minus[q] : Number.POSITIVE_INFINITY;
-      if(!isNaN(prevA)) {
-        if(cur >= prevA) {
-          prevA = cur;
-        } else {
-          prevA = Number.NaN;
-        }
-      }
-      if(!isNaN(prevB)) {
-        if(m >= prevB) {
-          prevB = m;
-        } else {
-          prevB = Number.NaN;
-        }
-      }
+      var m = minus[q];
       if(cur < m) {
         cb(cur);
         p += 1;
@@ -220,8 +206,9 @@ jkjs.util = function() {
         p += 1;
       }
     }
-    if(isNaN(prevA)) that.requireSorted(ixs, "base array");
-    if(isNaN(prevB)) that.requireSorted(ixs, "remove array");;
+    for(;p < ixs.length;p += 1) {
+      cb(ixs[p]);
+    }
   };
 
   this.applyPerm = function(arr, perm) {
