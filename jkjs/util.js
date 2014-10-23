@@ -123,13 +123,26 @@ jkjs.util = function() {
   };
 
   this.getRemaining = function(ixs, minus) {
+    if(!ixs.length || !minus.length) return ixs;
     // sorted ixs and minus
     var p = 0;
     var q = 0;
     var res = [];
+    var prevA = Number.NEGATIVE_INFINITY;
+    var prevB = Number.NEGATIVE_INFINITY;
     while(p < ixs.length) {
       var cur = ixs[p];
       var m = q < minus.length ? minus[q] : Number.POSITIVE_INFINITY;
+      if(cur >= prevA) {
+        prevA = cur;
+      } else {
+        prevA = Number.POSITIVE_INFINITY;
+      }
+      if(m >= prevB) {
+        prevB = m;
+      } else {
+        prevB = Number.POSITIVE_INFINITY;
+      }
       if(cur < m) {
         res.push(cur);
         p += 1;
@@ -139,6 +152,8 @@ jkjs.util = function() {
         p += 1;
       }
     }
+    if(!Number.isFinite(prevA)) console.warn("array is not sorted", ixs);
+    if(!Number.isFinite(prevB)) console.warn("array is not sorted", minus);
     return res;
   };
 
@@ -160,9 +175,9 @@ jkjs.util = function() {
     var res = cb.apply(obj, args);
     var to = new Date().getTime();
     if(obj || args) {
-      console.log(name, (to - from) + "ms", obj, args);
+      console.log("TIMING " + name, (to - from) + "ms", obj, args);
     } else {
-      console.log(name, (to - from) + "ms");
+      console.log("TIMING " + name, (to - from) + "ms");
     }
     return res;
   }
