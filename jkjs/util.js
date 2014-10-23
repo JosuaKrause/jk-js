@@ -186,7 +186,7 @@ jkjs.util = function() {
   };
 
   this.getRemainingIter = function(ixs, minus, cb) {
-    if(!ixs.length || !minus.length) { // TODO check whether this optimizes
+    if(!ixs.length || !minus.length) {
       ixs.forEach(cb);
       return;
     }
