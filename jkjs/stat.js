@@ -88,7 +88,6 @@ jkjs.stat = function() {
     });
     return sum / stdA / stdB / arrA.length;
   };
-
   this.metric = {
     euclid: function(arrA, arrB) {
       return Math.sqrt(computeDistance(arrA, arrB, function(a, b) {
@@ -130,6 +129,21 @@ jkjs.stat = function() {
    *    (http://en.wikipedia.org/wiki/Nat_%28information%29).
    */
   this.entropy = function(binCounts, totalCount) {
+    var tc;
+    if(arguments.length < 2) {
+      tc = that.sum(binCounts);
+    } else {
+      tc = totalCount;
+    }
+    return -aggregate(binCounts, 0, function(agg, cur) {
+      if(cur === 0) {
+        return agg;
+      }
+      var p = cur / tc;
+      return agg + p * Math.log(p);
+    });
+  };
+  this.KLD = function(binCounts1, totalCount1, binCounts2, totalCount2) {
     var tc;
     if(arguments.length < 2) {
       tc = that.sum(binCounts);
