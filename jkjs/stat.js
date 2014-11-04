@@ -164,7 +164,6 @@ jkjs.stat = function() {
       else
         return 0;
      });
-     console.log("KLD sum is " +sum);
      return -sum; 
    };
 }; // jkjs.stat
