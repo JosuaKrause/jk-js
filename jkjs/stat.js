@@ -143,21 +143,30 @@ jkjs.stat = function() {
       return agg + p * Math.log(p);
     });
   };
-  this.KLD = function(binCounts1, totalCount1, binCounts2, totalCount2) {
-    var tc;
-    if(arguments.length < 2) {
-      tc = that.sum(binCounts);
-    } else {
-      tc = totalCount;
-    }
-    return -aggregate(binCounts, 0, function(agg, cur) {
-      if(cur === 0) {
-        return agg;
+
+  this.KLD = function(arrA, arrB) {
+
+     /** 
+    var lenA = arrA.length
+    var lenB = arrB.length
+    */
+
+    var lenA = arrA.length;
+    var lenB = arrB.length;
+
+    var sum = computeDistance(arrA, arrB, function(a, b) {
+      if(b !=0 && a != 0)
+      {
+        var s = Math.log(a/lenA/b/lenB)*(a/lenA);
+        
+      return -s;
       }
-      var p = cur / tc;
-      return agg + p * Math.log(p);
-    });
-  };
+      else
+        return 0;
+     });
+     console.log("KLD sum is " +sum);
+     return -sum; 
+   };
 }; // jkjs.stat
 
 jkjs.stat = new jkjs.stat(); // create instance
