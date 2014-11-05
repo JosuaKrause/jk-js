@@ -159,6 +159,67 @@ jkjs.util = function() {
     }
   };
 
+  this.join = function(ixs, add) {
+    if(!ixs.length || !add.length) return ixs;
+    // TODO hacky way -- maybe optimize later
+    var tmp = ixs.concat(add);
+    tmp.sort(d3.ascending);
+    return that.unique(tmp);
+  };
+
+  this.unique = function(ixs) {
+    if(!ixs.length) return ixs;
+    // sorted ixs
+    that.ensureSorted(ixs);
+    var res = [];
+    res.length = ixs.length;
+    var prev = ixs[0];
+    res[0] = prev;
+    var q = 1;
+    for(var p = 1;p < ixs.length;p += 1) {
+      var cur = ixs[p];
+      if(cur !== prev) {
+        res[q] = cur;
+        q += 1;
+        prev = cur;
+      }
+    }
+    if(q < res.length) {
+      res.length = q;
+    }
+    return res;
+  };
+
+  this.intersect = function(xs, ys) {
+    if(!xs.length || !ys.length) return [];
+    // sorted xs and ys
+    that.ensureSorted(xs);
+    that.ensureSorted(ys);
+    var p = 0;
+    var q = 0;
+    var res = [];
+    res.length = Math.min(xs.length, ys.length);
+    var i = 0;
+    while(p < xs.length && q < ys.length) {
+      var a = xs[p];
+      var b = ys[q];
+      if(a < b) {
+        p += 1;
+      } else if(b < a) {
+        q += 1;
+      } else { // a === b
+        res[i] = a;
+        i += 1;
+        p += 1;
+        q += 1;
+      }
+    }
+    if(i < res.length) {
+      res.length = i;
+    }
+    return res;
+  };
+
   this.getRemaining = function(ixs, minus) {
     if(!ixs.length || !minus.length) return ixs;
     // sorted ixs and minus
@@ -167,11 +228,14 @@ jkjs.util = function() {
     var p = 0;
     var q = 0;
     var res = [];
+    res.length = ixs.length;
+    var i = 0;
     while(p < ixs.length && q < minus.length) {
       var cur = ixs[p];
       var m = minus[q];
       if(cur < m) {
-        res.push(cur);
+        res[i] = cur;
+        i += 1;
         p += 1;
       } else if(cur > m) {
         q += 1;
@@ -179,8 +243,13 @@ jkjs.util = function() {
         p += 1;
       }
     }
+    var realLength = i + ixs.length - p;
+    if(realLength !== res.length) {
+      res.length = realLength;
+    }
     for(;p < ixs.length;p += 1) {
-      res.push(ixs[p]);
+      res[i] = ixs[p];
+      i += 1;
     }
     return res;
   };
