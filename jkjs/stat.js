@@ -88,6 +88,16 @@ jkjs.stat = function() {
     });
     return sum / stdA / stdB / arrA.length;
   };
+  this.KLD = function(arrA, arrB) {
+    var lenA = arrA.length;
+    var lenB = arrB.length;
+    return -computeDistance(arrA, arrB, function(a, b) {
+      if(b !=0 && a != 0) {
+        return -Math.log(a/lenA/b/lenB)*(a/lenA);
+      }
+      return 0;
+    });
+  };
 
   this.metric = {
     euclid: function(arrA, arrB) {
