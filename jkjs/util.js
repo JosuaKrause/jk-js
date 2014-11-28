@@ -314,6 +314,36 @@ jkjs.util = function() {
     return res;
   }
 
+  this.shuffle = function(arr, from, to) {
+    var f = arguments.length < 2 ? 0 : from;
+    var t = arguments.length < 3 ? arr.length : to;
+    var i = t;
+    while(i > f) {
+      var j = Math.floor(Math.random() * (i - f)) + f;
+      i -= 1;
+      var tmp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = tmp;
+    }
+  };
+
+  this.Randomizer = function(estSize) {
+    var arr = [];
+    arr.length = estSize;
+    var ix = 0;
+
+    this.push = function(el) {
+      arr[ix] = el;
+      ix += 1;
+    };
+    this.each = function(cb) {
+      that.shuffle(arr, 0, ix);
+      for(var i = 0;i < ix;i += 1) {
+        cb(arr[i]);
+      }
+    };
+  } // Randomizer
+
 }; // jkjs.util
 
 jkjs.util = new jkjs.util(); // create instance
