@@ -5,7 +5,7 @@
 
 jkjs = window.jkjs || {}; // init namespace
 
-jkjs.lasso = function(sel) {
+jkjs.Lasso = function(sel) {
   var that = this;
 
   var objProvider = null;
@@ -108,4 +108,4 @@ jkjs.lasso = function(sel) {
     }
     return numCrossings & 1 != 0;
   }
-}; // jkjs.lasso
+}; // jkjs.Lasso
