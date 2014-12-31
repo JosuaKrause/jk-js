@@ -354,12 +354,13 @@ function lassoExample(sel) {
     }).classed("centeredBlock", true);
 
     // randomly position circles
+    var radius = 5;
     var circles = [];
     circles.length = 15;
     for(var i = 0;i < circles.length;i += 1) {
         circles[i] = {
-            x: Math.random() * w,
-            y: Math.random() * h,
+            x: Math.random() * (w - 2*radius) + radius,
+            y: Math.random() * (h - 2*radius) + radius,
             name: i,
             sel: null
         };
@@ -373,7 +374,7 @@ function lassoExample(sel) {
         "cy": function(c) {
             return c.y;
         },
-        "r": 5,
+        "r": radius,
     }).style({
         "stroke": "black",
         "fill": "white"
