@@ -13,6 +13,7 @@
     <script src="jkjs/busy.js" charset="utf-8"></script>
     <script src="jkjs/zui.js" charset="utf-8"></script>
     <script src="jkjs/dialog.js" charset="utf-8"></script>
+    <script src="jkjs/lasso.js" charset="utf-8"></script>
     <style type="text/css">
         .centeredBlock {
             display: block;
@@ -341,6 +342,114 @@ function inputExample(sel) {
     zui.showAll(false);
 }
 
+function lassoExample(sel) {
+    var w = 400;
+    var h = 200;
+    var svg = sel.append("svg").attr({
+        "width": w,
+        "height": h
+    }).style({
+        "width": w + "px",
+        "height": h + "px"
+    }).classed("centeredBlock", true);
+
+    // randomly position circles
+    var circles = [];
+    circles.length = 15;
+    for(var i = 0;i < circles.length;i += 1) {
+        circles[i] = {
+            x: Math.random() * w,
+            y: Math.random() * h,
+            name: i,
+            sel: null
+        };
+    }
+    var cs = svg.selectAll("circle").data(circles);
+    cs.exit().remove();
+    cs.enter().append("circle").attr({
+        "cx": function(c) {
+            return c.x;
+        },
+        "cy": function(c) {
+            return c.y;
+        },
+        "r": 5,
+    }).style({
+        "stroke": "black",
+        "fill": "white"
+    });
+    cs.each(function(c) { // link back to d3 selections
+        c.sel = d3.select(this);
+    });
+    var lassoSel = svg.append("path").style({
+        "stroke": "blue",
+        "fill": "cornflowerblue",
+        "opacity": 0.5
+    });
+
+    function doSelect(selection) { // performs the actual selection
+        cs.style({
+            "fill": "white"
+        });
+        selection.forEach(function(c) {
+            c.sel.style({
+                "fill": "cornflowerblue"
+            });
+        });
+    }
+
+    var lasso = new jkjs.lasso(svg);
+    lasso.objProvider(function() {
+        return circles;
+    });
+    lasso.objToPos(function(c) {
+        return [ c.x, c.y ];
+    });
+    lasso.updateSel(function(selection, polygon) {
+        var path = new jkjs.Path(); // update the lasso
+        path.addPoly(polygon);
+        lassoSel.attr({
+            "d": path
+        });
+        if(!polygon.length) { // end of lasso selectioin
+            doSelect(selection);
+        } else { // temporarily select circles
+            cs.style({
+                "fill": "white"
+            });
+            selection.forEach(function(c) {
+                c.sel.style({
+                    "fill": "crimson"
+                });
+            });
+        }
+    });
+    lasso.onClick(function(pos) {
+        var minDistSq = Number.POSITIVE_INFINITY;
+        var closest = null;
+        circles.forEach(function(c) {
+            var dx = pos[0] - c.x;
+            var dy = pos[1] - c.y;
+            var distSq = dx*dx + dy*dy;
+            if(distSq < minDistSq) {
+                minDistSq = distSq;
+                closest = c;
+            }
+        });
+        closest && doSelect([ closest ]);
+    });
+
+    svg.append("rect").attr({
+        "x": 0,
+        "y": 0,
+        "width": w,
+        "height": h
+    }).style({
+        "fill": "none",
+        "stroke": "black"
+    });
+}
+
 function start() {
     function addExample(id, title, example, help) {
         var sel = d3.select("#content").append("div").attr({
@@ -395,6 +504,8 @@ function start() {
         "Clicking on the circle opens an input dialog which determines the shown number. "
       + "Further help text is shown when clicking on the question mark symbol in the dialog. "
       + "Note that the canvas also provides zoom and pan interaction.");
+    addExample("exampleLasso", "Lasso Selection", lassoExample,
+        "Dragging the mouse creates a lasso selection. Clicking selects the closest circle.");
 }
 </script>
 

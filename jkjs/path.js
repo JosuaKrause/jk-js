@@ -37,6 +37,20 @@ jkjs.Path.prototype.quadBy = function(dmx, dmy, dx, dy) {
 jkjs.Path.prototype.close = function() {
   this.strs.push(" Z");
 };
+jkjs.Path.prototype.addPoly = function(arr) {
+  if(!arr.length) return;
+  var that = this;
+  var first = true;
+  arr.forEach(function(pos) {
+    if(first) {
+      that.move(pos[0], pos[1]);
+      first = false;
+    } else {
+      that.line(pos[0], pos[1]);
+    }
+  });
+  that.close();
+};
 jkjs.Path.prototype.pointAdder = function(size) {
   // for tight loops
   var that = this;
