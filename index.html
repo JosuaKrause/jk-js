@@ -508,7 +508,10 @@ function start() {
     addExample("exampleLasso", "Lasso Selection", lassoExample,
         "Dragging the mouse creates a lasso selection. Clicking selects the closest circle.");
 
-    location.hash && d3.select(location.hash).node().scrollIntoView(true);
+    if(location.hash) {
+        var sel = d3.select(location.hash);
+        sel.empty() || sel.node().scrollIntoView(true);
+    }
 }
 </script>
 
