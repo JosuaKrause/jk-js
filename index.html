@@ -507,6 +507,8 @@ function start() {
       + "Note that the canvas also provides zoom and pan interaction.");
     addExample("exampleLasso", "Lasso Selection", lassoExample,
         "Dragging the mouse creates a lasso selection. Clicking selects the closest circle.");
+
+    location.hash && d3.select(location.hash).node().scrollIntoView(true);
 }
 </script>
 
