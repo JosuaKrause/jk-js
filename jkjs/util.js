@@ -28,15 +28,28 @@ jkjs.util = function() {
   /**
    * An implementation to set attributes only when they have changed.
    * This might increase performance for attributes which are expensive to update.
-   * This does not work with attribute functions.
+   * This does not work with attribute functions or qualified names.
    */
   this.attr = function(sel, attr) {
-    for(key in attr) {
+    // even without the value checks
+    // it is still faster because of optimization
+    // (at this point value checks slow everything down)
+    Object.keys(attr).forEach(function(key) {
       var value = attr[key];
-      if(value !== sel.attr(key)) {
-        sel.attr(key, value);
+      if(value === null) {
+        sel.each(function() {
+          // if(!this.hasAttribute(key)) {
+            this.removeAttribute(key);
+          // }
+        });
+      } else {
+        sel.each(function() {
+          // if(this.getAttribute(key) !== value) {
+            this.setAttribute(key, value);
+          // }
+        });
       }
-    }
+    });
     return sel;
   };
 
