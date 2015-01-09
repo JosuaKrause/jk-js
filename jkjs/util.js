@@ -26,6 +26,21 @@ jkjs.util = function() {
   }
 
   /**
+   * An implementation to set attributes only when they have changed.
+   * This might increase performance for attributes which are expensive to update.
+   * This does not work with attribute functions.
+   */
+  this.attr = function(sel, attr) {
+    for(key in attr) {
+      var value = attr[key];
+      if(value !== sel.attr(key)) {
+        sel.attr(key, value);
+      }
+    }
+    return sel;
+  };
+
+  /**
    * Returns all GET arguments of the current URL location as key value pairs.
    *
    * @returns {Object} The arguments as keys and values.
