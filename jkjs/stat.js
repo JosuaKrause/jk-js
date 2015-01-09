@@ -38,6 +38,44 @@ jkjs.stat = function() {
     });
   };
 
+  this.minmax = function(arr) {
+    if(arr.length == 0) return [ Number.NaN, Number.NaN ];
+    if(arr.length == 1) return [ arr[0], arr[0] ];
+    // more than one element
+    var minmax = arr[0] < arr[1] ? [ arr[0], arr[1] ] : [ arr[1], arr[0] ];
+    var ix = 2;
+    while(ix < arr.length) {
+      var fst = arr[ix];
+      ix += 1;
+      if(ix >= arr.length) { // fst is last element
+        if(fst < minmax[0]) {
+          minmax[0] = fst;
+        } else if(fst > minmax[1]) {
+          minmax[1] = fst;
+        }
+      } else { // advance 2 elements at a time -- only 3 comparisons needed
+        var snd = arr[ix];
+        ix += 1;
+        var min;
+        var max;
+        if(fst < snd) {
+          min = fst;
+          max = snd;
+        } else {
+          min = snd;
+          max = fst;
+        }
+        if(min < minmax[0]) {
+          minmax[0] = min;
+        }
+        if(max > minmax[1]) {
+          minmax[1] = max;
+        }
+      }
+    }
+    return minmax;
+  };
+
   this.mean = function(arr) {
     return that.sum(arr) / arr.length;
   };

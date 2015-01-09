@@ -21,11 +21,31 @@ jkjs.text = function() {
     right: ALIGN_RIGHT
   };
 
+  var exact = true;
+
+  this.exact = function(_) {
+    if(!arguments.length) return exact;
+    exact = _;
+  };
+
   function fit(line, selText, w, h) {
-    selText.text(line);
-    var own = selText.node().getBBox();
-    var ow = own.width;
-    var oh = own.height;
+    var ow;
+    var oh;
+    if(exact || !selText.__textSizeCache) {
+      selText.text(line);
+      var own = selText.node().getBBox();
+      ow = own.width;
+      oh = own.height;
+      if(!exact) {
+        selText.__textSizeCache = {
+          w: ow / line.length,
+          h: oh
+        };
+      }
+    } else {
+      ow = line.length * selText.__textSizeCache.w;
+      oh = selText.__textSizeCache.h;
+    }
     return {
       high: oh > h,
       wide: ow > w,
