@@ -9,6 +9,9 @@ jkjs = window.jkjs || {}; // init namespace
 jkjs.util = function() {
   var that = this;
 
+  // suitable for SVGs
+  this.BIG_NUMBER = 1e8;
+
   /**
    * Converts a list of classes into an object that can be used by the d3 classed function to activate all those classes.
    *
@@ -147,7 +150,7 @@ jkjs.util = function() {
   };
 
   this.getFontColor = function(color) {
-    var grayValue = this.getGrayValue(color);
+    var grayValue = this.getGrayValue(d3.rgb(color));
     return grayValue > 0.5 ? d3.rgb("black") : d3.rgb("white");
   };
 
@@ -188,7 +191,14 @@ jkjs.util = function() {
   };
 
   this.join = function(ixs, add) {
-    if(!ixs.length || !add.length) return ixs;
+    if(!ixs.length) {
+      that.ensureSorted(add);
+      return add;
+    }
+    if(!add.length) {
+      that.ensureSorted(ixs);
+      return ixs;
+    }
     // TODO hacky way -- maybe optimize later
     var tmp = ixs.concat(add);
     tmp.sort(d3.ascending);
