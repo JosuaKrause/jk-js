@@ -167,6 +167,75 @@ jkjs.stat = function() {
     }
   };
 
+  this.edit_distances = {
+    levenshtein: function(arrA, arrB) {
+      if(arrA === arrB) return 0;
+      if(!arrA.length) return arrB.length;
+      if(!arrB.length) return arrA.length;
+      if(arrA.length < arrB.length) return that.edit_distances.levenshtein(arrB, arrA); // use shorter array as arrB to reduce memory
+
+      var v0 = new Int32Array(arrB.length + 1);
+      var v1 = new Int32Array(arrB.length + 1);
+      for(var ix = 0;ix < v0.length;ix += 1) {
+        v0[ix] = ix;
+      }
+
+      for(var ix = 0;ix < arrA.length;ix += 1) {
+        v1[0] = ix + 1;
+        for(var k = 0;k < arrB.length;k += 1) {
+          var cost = arrA[ix] == arrB[k] ? 0 : 1;
+          v1[k + 1] = Math.min(
+                        v1[k] + 1, // insert
+                        v0[k + 1] + 1, // delete
+                        v0[k] + cost // replace / equal
+                      );
+        }
+        for(var k = 0;k < v0.length;k += 1) {
+          v0[k] = v1[k];
+        }
+      }
+      return v1[arrB.length];
+    },
+    hamming: function(arrA, arrB) {
+      if(arrA === arrB) return 0;
+      if(arrA.length > arrB.length) return that.edit_distances.hamming(arrB, arrA);
+      // arrA is shorter
+      var dist = 0;
+      for(var ix = 0;ix < arrA.length;ix += 1) {
+        if(arrA[ix] != arrB[ix]) {
+          dist += 1;
+        }
+      }
+      for(var ix = arrA.length;ix < arrB.length;ix += 1) {
+        if(arrB[ix]) {
+          dist += 1;
+        }
+      }
+      return dist;
+    },
+    jaccard: function(arrA, arrB) {
+      if(arrA === arrB) return 0;
+      if(arrA.length > arrB.length) return that.edit_distances.jaccard(arrB, arrA);
+      // arrA is shorter
+      var cap = 0;
+      var cup = 0;
+      for(var ix = 0;ix < arrA.length;ix += 1) {
+        if(arrA[ix] && arrB[ix]) {
+          cap += 1;
+        }
+        if(arrA[ix] || arrB[ix]) {
+          cup += 1;
+        }
+      }
+      for(var ix = arrA.length;ix < arrB.length;ix += 1) {
+        if(arrB[ix]) {
+          cup += 1;
+        }
+      }
+      return arrB.length ? 1 - cap / cup : 0;
+    }
+  };
+
   /**
    * Compute the entropy of the given distribution.
    *
