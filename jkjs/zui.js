@@ -44,6 +44,15 @@ jkjs.zui = function() {
     if(!smooth) return sel;
     return sel.transition().duration(that.animationDuration).ease(that.animationEase);
   };
+  this.afterTransition = function(cb, smooth) {
+    if(!smooth) {
+      cb();
+      return;
+    }
+    setTimeout(function() {
+      cb();
+    }, that.animationDuration); // TODO not 100% precise
+  };
 
   this.margin = 10;
 
