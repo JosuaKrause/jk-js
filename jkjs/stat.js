@@ -262,6 +262,58 @@ jkjs.stat = function() {
     });
   };
 
+  this.bins = {
+    entropy: function(bins) {
+      var all = 0;
+      var counts = new Uint32Array(bins.getBinCount());
+      bins.forEach(function(bin, i) {
+        var c = bin.getCount();
+        counts[i] = c;
+        all += c;
+      });
+      return that.entropy(counts, all);
+    },
+    skew: function(bins, mean, stddev) {
+      var total = 0;
+      var exp3 = 0; // E[ V^3 ]
+      bins.forEach(function(b, ix) {
+        var v = bins.someValueForIndex(ix);
+        var c = b.getCount();
+        total += c;
+        exp3 += v * v * v * c;
+      });
+      exp3 /= total;
+      // (E[ V^3 ] - 3ms^3 - m^3) / (s^3)
+      return (exp3 - 3 * mean * stddev * stddev - mean * mean * mean) / (stddev * stddev * stddev);
+    },
+    shapePearson: function(bins, traversable) {
+      var tCounts = new Uint32Array(bins.getBinCount());
+      traversable.forEach(function(v) {
+        var ix = bins.indexForValue(v);
+        tCounts[ix] += 1;
+      });
+      var refCounts = new Uint32Array(bins.getBinCount());
+      bins.forEach(function(bin, i) {
+        var c = bin.getCount();
+        refCounts[i] = c;
+      });
+      return that.metric.pearson(refCounts, tCounts);
+    },
+    KLD: function(bins, traversable) {
+      var tCounts = new Uint32Array(bins.getBinCount());
+      traversable.forEach(function(v) {
+        var ix = bins.indexForValue(v);
+        tCounts[ix] += 1;
+      });
+      var refCounts = new Uint32Array(bins.getBinCount());
+      bins.forEach(function(bin, i) {
+        var c = bin.getCount();
+        refCounts[i] = c;
+      });
+      return that.KLD(refCounts, tCounts);
+    }
+  };
+
   this.bin = function(array, isNominal, minValue, maxValue, binCount) {
     var min;
     var max;
