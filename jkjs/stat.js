@@ -261,6 +261,129 @@ jkjs.stat = function() {
       return agg + p * Math.log(p);
     });
   };
+
+  this.bin = function(array, isNominal, minValue, maxValue, binCount) {
+    var min;
+    var max;
+    if(arguments.length < 4) {
+      var minmax = that.minmax(array);
+      min = minmax[0];
+      max = minmax[1];
+    } else {
+      min = minValue;
+      max = maxValue;
+    }
+    var k = isNominal ? Math.max(max, 1) : arguments.length < 5 ? Math.ceil(Math.log(length) / Math.LN2 + 1) : binCount;
+    var curBins = new Bins(k, isNominal, array.length, min, max);
+    if(array.forEach) {
+      array.forEach(function(v, i) {
+        curBins.addValue(v, i);
+      });
+    } else {
+      for(var ix = 0;ix < array.length;ix += 1) {
+        curBins.addValue(array[ix], ix);
+      }
+    }
+    curBins.finish();
+    if(isNominal) {
+      curBins.sort(function(a, b) {
+        return d3.ascending(a.getCount(), b.getCount());
+      });
+    }
+
+    function Bins(k, isNominal, rowCount, minValue, maxValue) {
+      var arr = [];
+      var ord = [];
+      var isOrdered = false;
+      for(var i = 0; i < k; i += 1) {
+        arr.push(new Bin(isNominal, rowCount));
+        ord.push(i);
+      };
+      var maxCount = 0;
+      var min = minValue <= maxValue ? minValue : 0;
+      var size = minValue < maxValue ? (maxValue - minValue) / k : 1;
+      this.getMinValue = function() {
+        return minValue;
+      };
+      this.getMaxValue = function() {
+        return maxValue;
+      };
+      this.indexForValue = function(v) {
+        return Math.max(Math.min(Math.floor((v - min) / size), k - 1), 0);
+      };
+      this.binForValue = function(v) {
+        var ix = this.indexForValue(v);
+        ix === ord[ix] || console.warn("must not call after sort", this, ix, ord[ix]);
+        return arr[ix];
+      };
+      this.addValue = function(v, ix) {
+        var bin = this.binForValue(v);
+        bin.addIndex(ix);
+      };
+      this.someValueForIndex = function(ix) {
+        return min + size * ix;
+      };
+      this.finish = function() {
+        arr.forEach(function(bin) {
+          var c = bin.getCount();
+          if(c > maxCount) {
+            maxCount = c;
+          }
+        });
+      };
+      this.forEach = function(cb) {
+        if(!isOrdered) {
+          arr.forEach(cb);
+        } else {
+          arr.forEach(function(bin, ix) {
+            cb(bin, ord[ix]);
+          });
+        }
+      };
+      this.sort = function(s) {
+        ord.sort(function(a, b) {
+          return s(arr[a], arr[b]);
+        });
+        jkjs.util.applyPerm(arr, ord);
+        isOrdered = true;
+      };
+      this.getBinCount = function() {
+        return k;
+      };
+      this.getMaxCount = function() {
+        return maxCount;
+      };
+    } // Bins
+
+    function Bin(isNominal, size) {
+      var arr = []; // sorted
+
+      this.addIndex = function(ix) {
+        if(arr.length && arr[arr.length - 1] >= ix) console.warn("must be strictly ascending", ix, arr);
+        arr.push(ix);
+      };
+      this.getCount = function() {
+        return arr.length;
+      };
+      this.getIndices = function() {
+        return arr;
+      };
+      this.getWidth = function(w, count, maxCount) {
+        if(isNominal) {
+          return this.getCount() ? w * count / this.getCount() : 0;
+        }
+        return maxCount ? w * count / maxCount : 0;
+      };
+      this.getHeight = function(h, k) {
+        if(isNominal) {
+          return h * this.getCount() / size;
+        }
+        return h / k;
+      };
+    } // Bin
+
+    return curBins;
+  };
 }; // jkjs.stat
 
 jkjs.stat = new jkjs.stat(); // create instance
