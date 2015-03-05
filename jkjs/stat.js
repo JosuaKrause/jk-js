@@ -233,6 +233,41 @@ jkjs.stat = function() {
         }
       }
       return arrB.length ? 1 - cap / cup : 0;
+    },
+    move_window: function(window_size) {
+      var cmp = function(arrA, arrB) {
+        if(arrA.length != arrB.length) {
+          console.warn("array length must be equal", arrA.length, arrB.length);
+          return Number.NaN;
+        }
+        var sumA = that.sum(arrA);
+        var sumB = that.sum(arrB);
+        if(sumA > sumB) {
+          return cmp(arrB, arrA);
+        }
+        var dist = 0;
+        for(var ix = 0;ix < arrA.length;ix += 1) {
+          if(!arrA[ix] || arrB[ix]) continue;
+          var moved = false;
+          for(var move = 1;move <= window_size;move += 1) {
+            if(ix - move >= 0 && arrB[ix - move]) {
+              moved = true;
+              dist += move;
+              break;
+            }
+            if(ix + move < arrB.length && arrB[ix + move]) {
+              moved = true;
+              dist += move;
+              break;
+            }
+          }
+          if(!moved) {
+            dist += (window_size + 1) * 2;
+          }
+        }
+        return dist * 1.1 + (sumB - sumA) * 0.9; // punish differences in event counts (assert sumB > sumA)
+      };
+      return cmp;
     }
   };
 
