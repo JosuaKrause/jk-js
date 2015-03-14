@@ -398,6 +398,10 @@ if(!String.prototype.startsWith) {
   });
 }
 
+Number.isNaN = Number.isNaN || function(value) {
+  return typeof value === "number" && value !== value;
+}
+
 if(typeof Number.isFinite !== 'function') {
   Number.isFinite = function isFinite(value) {
     if(typeof value !== 'number') return false;
