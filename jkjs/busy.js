@@ -56,13 +56,17 @@ jkjs.busy = function() {
     var warn = res.append("image").classed(busyClass, true).attr({
       "xlink:href": imgWarn
     }).on("click", resetState);
+    var text = res.append("text").attr({
+      "text-anchor": "middle"
+    });
 
     function resetState() {
       that.setState(outer.state.norm);
     }
 
     var curState = outer.state.norm;
-    this.setState = function(state) {
+    this.setState = function(state, msg) {
+      var txt = msg || "";
       var emptyRect = {
         "x": 0,
         "y": 0,
@@ -79,6 +83,9 @@ jkjs.busy = function() {
         });
         busy.attr(emptyRect);
         warn.attr(emptyRect);
+        text.style({
+          "opacity": 0
+        }).text("");
         return;
       }
       elem.attr({
@@ -93,6 +100,18 @@ jkjs.busy = function() {
         "width": size,
         "height": size
       };
+      if (txt != "") {
+        text.style({
+          "opacity": 1
+        }).attr({
+          "x": x + (w - size) * 0.5,
+          "y": y + (h - size) * 0.5 + size + 20
+        }).text(txt);
+      } else {
+        text.style({
+          "opacity": 0
+        }).text("");
+      }
       if (state === outer.state.busy) {
         busy.attr(imgRect);
         warn.attr(emptyRect);
