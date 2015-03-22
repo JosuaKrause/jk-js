@@ -379,6 +379,7 @@ jkjs.stat = function() {
     }
 
     function Bins(k, isNominal, rowCount, minValue, maxValue) {
+      var that = this;
       var arr = [];
       var ord = [];
       var isOrdered = false;
@@ -394,6 +395,20 @@ jkjs.stat = function() {
       };
       this.getMaxValue = function() {
         return maxValue;
+      };
+      this.getPosForValue = function(v, h) {
+        var ix = that.indexForValue(v);
+        var ypos = 0;
+        var minV = minValue;
+        var perH = (maxValue - minValue) / h;
+        that.forEach(function(bin, i) {
+          if(i >= ix) return;
+          var bh = bin.getHeight(h, that.getBinCount());
+          ypos += bh;
+          minV += bh * perH;
+        });
+        var oh = that.binForValue(v).getHeight(h, that.getBinCount());
+        return ypos + (v - minV) / (oh * perH) * oh;
       };
       this.indexForValue = function(v) {
         return Math.max(Math.min(Math.floor((v - min) / size), k - 1), 0);
