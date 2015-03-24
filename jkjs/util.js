@@ -27,10 +27,8 @@ jkjs.util = function() {
       }
       return;
     }
-    if(Error && Error.captureStackTrace) {
-      var obj = {};
-      Error.captureStackTrace(obj, that.warnDupCalls);
-      dupCallMap[name] = obj.stack || __flagObj;
+    if(Error) {
+      dupCallMap[name] = new Error().stack || __flagObj;
     } else {
       dupCallMap[name] = __flagObj;
     }
