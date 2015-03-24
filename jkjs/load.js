@@ -98,10 +98,12 @@ jkjs.load = function(the_file) {
             f || console.warn("unknown type: " + k);
             f.setValue(ix, r[k]);
           });
-          f.finishInit();
           ixs.push(ix);
         });
         ixs.sort(d3.ascending);
+        features.forEach(function(f) {
+          f.finishInit();
+        });
         cb(features, ixs);
       });
     }
