@@ -12,6 +12,7 @@ jkjs.util = function() {
   this.WARN_DUP_CALL = false;
 
   var dupCallMap = {};
+  var __flagObj = {};
   /**
    * Detects duplicate calls in quick succession and warns about them.
    * This functionality must be enabled with the WARN_DUP_CALL flag.
@@ -21,14 +22,23 @@ jkjs.util = function() {
     if(name in dupCallMap && dupCallMap[name]) {
       console.warn(name + " called more than once in quick succession");
       console.trace();
+      if(dupCallMap[name] !== __flagObj) {
+        console.warn("first call", dupCallMap[name]);
+      }
       return;
     }
-    dupCallMap[name] = true;
+    if(Error && Error.captureStackTrace) {
+      var obj = {};
+      Error.captureStackTrace(obj, that.warnDupCalls);
+      dupCallMap[name] = obj.stack || __flagObj;
+    } else {
+      dupCallMap[name] = __flagObj;
+    }
     setTimeout(function() {
       // we never actually remove elements from the map
       // this would slow down performance -- we can assume that
       // the number of names is small and they are manually defined
-      dupCallMap[name] = false;
+      dupCallMap[name] = null;
     }, 0);
   };
 
