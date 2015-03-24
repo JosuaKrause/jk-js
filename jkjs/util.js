@@ -9,6 +9,29 @@ jkjs = window.jkjs || {}; // init namespace
 jkjs.util = function() {
   var that = this;
 
+  this.WARN_DUP_CALL = false;
+
+  var dupCallMap = {};
+  /**
+   * Detects duplicate calls in quick succession and warns about them.
+   * This functionality must be enabled with the WARN_DUP_CALL flag.
+   */
+  this.warnDupCalls = function(name) {
+    if(!that.WARN_DUP_CALL) return;
+    if(name in dupCallMap && dupCallMap[name]) {
+      console.warn(name + " called more than once in quick succession");
+      console.trace();
+      return;
+    }
+    dupCallMap[name] = true;
+    setTimeout(function() {
+      // we never actually remove elements from the map
+      // this would slow down performance -- we can assume that
+      // the number of names is small and they are manually defined
+      dupCallMap[name] = false;
+    }, 0);
+  };
+
   // suitable for SVGs
   this.BIG_NUMBER = 1e8;
 
