@@ -102,7 +102,7 @@ jkjs.util = function() {
     keyValues.forEach(function(e) {
       var key = e.split('=');
       if (key.length > 1) {
-        assoc[decode(key[0])] = decode(key[1]);
+        assoc[decode(key[0])] = decode(key[1]).replace(/\/+$/,'');
       }
     });
     return assoc;
