@@ -146,6 +146,45 @@ jkjs.util = function() {
   }
 
   /**
+   * A python like split function.
+   * Note: The behavior is different than JavaScript's split function.
+   *
+   * @param str
+   *          The string to split.
+   * @param sep
+   *          The separator. Same default as in python.
+   * @param n
+   *          The maximum number of splits.
+   */
+  this.split = function(str, sep, n) {
+    var s = arguments.length > 1 ? sep : /\s+/;
+    if(arguments.length < 3) {
+      return str.split(s);
+    }
+    var out = [];
+    cur = str;
+    if(s.exec) {
+      for(;;) {
+        if(out.length >= n) break;
+        var match = s.exec(cur);
+        if(!match) break;
+        out.push(cur.slice(0, match['index']));
+        cur = cur.slice(match['index'] + match[0].length);
+      }
+    } else {
+      for(;;) {
+        if(out.length >= n) break;
+        var index = cur.indexOf(s);
+        if(index < 0) break;
+        out.push(cur.slice(0, index));
+        cur = cur.slice(index + s.length);
+      }
+    }
+    out.push(cur);
+    return out;
+  }
+
+  /**
    * Moves all elements of the given selection to either the front or the back of the parent's children list resulting in
    * different visibility.
    *
