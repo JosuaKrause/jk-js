@@ -424,6 +424,21 @@ jkjs.util = function() {
     return res;
   }
 
+  this.sample = function(arr, count) {
+    var reservoir = [];
+    arr.forEach(function(v, ix) {
+      if(reservoir.length < count) {
+        reservoir.push(v);
+        return;
+      }
+      var pos = Math.floor(Math.random() * (ix + 1));
+      if(pos < reservoir.length) {
+        reservoir[pos] = v;
+      }
+    });
+    return reservoir;
+  };
+
   this.shuffle = function(arr, from, to) {
     var f = arguments.length < 2 ? 0 : from;
     var t = arguments.length < 3 ? arr.length : to;
