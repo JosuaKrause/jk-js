@@ -103,6 +103,8 @@ jkjs.util = function() {
       var key = e.split('=');
       if (key.length > 1) {
         assoc[decode(key[0])] = decode(key[1]).replace(/\/+$/,'');
+      } else {
+        assoc[decode(e)] = true;
       }
     });
     return assoc;
