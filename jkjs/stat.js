@@ -486,6 +486,31 @@ jkjs.stat = function() {
 
     return curBins;
   };
+
+  this.norm = function(x, mean, sigma) {
+    var s = arguments.length > 2 ? sigma : 1;
+    var m = arguments.length > 1 ? mean : 0;
+    return Math.exp(-(x - m)*(x - m)/(2 * s * s)) / Math.sqrt(2 * Math.PI) / s;
+  };
+  this.pdf = this.norm;
+  this.phi = function(x, mean, sigma) {
+    var s = arguments.length > 2 ? sigma : 1;
+    var m = arguments.length > 1 ? mean : 0;
+    return 0.5 * (1 + that.erf((x - m)/(s * Math.SQRT2)));
+  };
+  this.erf = function(x) {
+    if(x < 0) {
+      return -that.erf(-x);
+    }
+    var a1 = 0.254829592;
+    var a2 = -0.284496736;
+    var a3 = 1.421413741;
+    var a4 = -1.453152027;
+    var a5 = 1.061405429;
+    var p = 0.3275911;
+    var t = 1.0 / (1.0 + p*x);
+    return 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x*x);
+  };
 }; // jkjs.stat
 
 jkjs.stat = new jkjs.stat(); // create instance
