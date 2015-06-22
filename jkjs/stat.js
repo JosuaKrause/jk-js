@@ -511,6 +511,32 @@ jkjs.stat = function() {
     var t = 1.0 / (1.0 + p*x);
     return 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x*x);
   };
+  /**
+   * Computes the area under the Gauss-curve weighted by a linear function.
+   *
+   *   ∫_{x1}^{x2} (ax + b) / (σ * sqrt(2π)) * e ^ (-(x - μ)^2 / (2 * σ^2)) dx
+   *
+   * Which can be written as:
+   *
+   * a * [sqrt(σ / π) * (e ^ T(x1) - e ^ T(x2)) + μ * (Φ(S(x2)) - Φ(S(x1)))] + b * (Φ(x2) - Φ(x1))
+   *
+   * where T(x) = -(μ - x)^2 / (4 * σ)
+   * and   S(x) = sqrt(σ / 2) * x + (1 - sqrt(σ / 2)) * μ
+   */
+  this.weightedPhi = function(x1, x2, a, b, mean, sigma) {
+    var s = arguments.length > 5 ? sigma : 1;
+    var m = arguments.length > 4 ? mean : 0;
+    var rest = b * (that.phi(x2) - that.phi(x1));
+    if(!a) {
+      return rest;
+    }
+    var sf = Math.sqrt(s * 0.5);
+    var mu_rest = m * (that.phi(sf * x2 + (1 - sf) * m) - that.phi(sf * x1 + (1 - sf) * m));
+    var t1 = -(m - x1)*(m - x1) * 0.25 / s;
+    var t2 = -(m - x2)*(m - x2) * 0.25 / s;
+    var pre = Math.sqrt(s / Math.PI) * (Math.exp(t1) - Math.exp(t2));
+    return a * (pre + mu_rest) + rest;
+  };
 }; // jkjs.stat
 
 jkjs.stat = new jkjs.stat(); // create instance
