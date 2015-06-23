@@ -537,6 +537,45 @@ jkjs.stat = function() {
     var pre = Math.sqrt(s / Math.PI) * (Math.exp(t1) - Math.exp(t2));
     return a * (pre + mu_rest) + rest;
   };
+  /**
+   * Computes the Gauss-curve weighted by a linear function.
+   *
+   * (ax + b) / (σ * sqrt(2π)) * e ^ (-(x - μ)^2 / (2 * σ^2))
+   */
+  this.weightedNorm = function(x, a, b, mean, sigma) {
+    var s = arguments.length > 4 ? sigma : 1;
+    var m = arguments.length > 3 ? mean : 0;
+    return (a*x + b) * that.norm(x, m, s);
+  };
+  /**
+   * Computes the minimum and maximum of the Gauss-curve weighted
+   * by a linear function in a given interval.
+   *
+   * min/max( (ax + b) / (σ * sqrt(2π)) * e ^ (-(x - μ)^2 / (2 * σ^2)) )
+   */
+  this.weightedNormExtrema = function(x1, x2, a, b, mean, sigma) {
+    var s = arguments.length > 5 ? sigma : 1;
+    var m = arguments.length > 4 ? mean : 0;
+    var arr = [];
+    arr.push([ x1, that.weightedNorm(x1, a, b, m, s) ]);
+    arr.push([ x2, that.weightedNorm(x2, a, b, m, s) ]);
+    if(a !== 0) {
+      var bam = a*m - b;
+      var a2 = a*a;
+      var b2 = b*b;
+      var s2 = s*s;
+      var m2 = m*m;
+      var root = Math.sqrt(b2 + 2*a*b*m + a2*m2 + 4*a2*s2);
+      var x3 = (bam + root) / a * 0.5;
+      var x4 = (bam - root) / a * 0.5;
+      arr.push([ x3, that.weightedNorm(x3, a, b, m, s) ]);
+      arr.push([ x4, that.weightedNorm(x4, a, b, m, s) ]);
+    }
+    arr.sort(function(a, b) {
+      return d3.ascending(a[1], b[1]);
+    });
+    return [ arr[0], arr[arr.length-1] ];
+  };
 }; // jkjs.stat
 
 jkjs.stat = new jkjs.stat(); // create instance
