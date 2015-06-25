@@ -511,6 +511,7 @@ jkjs.stat = function() {
     var t = 1.0 / (1.0 + p*x);
     return 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x*x);
   };
+  this.EMPIRICLY_WEIGHTED_NORM = false;
   /**
    * Computes the area under the Gauss-curve weighted by a linear function.
    *
@@ -529,6 +530,16 @@ jkjs.stat = function() {
     var rest = b * (that.phi(x2) - that.phi(x1));
     if(!a) {
       return rest;
+    }
+    if(that.EMPIRICLY_WEIGHTED_NORM) {
+      var step = s * 1e-2;
+      var _x1 = Math.max(Math.min(x1, m + s*8), m - s*8);
+      var _x2 = Math.max(Math.min(x2, m + s*8), m - s*8);
+      var sum = 0;
+      for(var x = _x1;x < _x2;x += step) {
+        sum += step * that.weightedNorm(x, a, b, m, s);
+      }
+      return sum;
     }
     var sf = Math.sqrt(s * 0.5);
     var mu_rest = m * (that.phi(sf * x2 + (1 - sf) * m) - that.phi(sf * x1 + (1 - sf) * m));
@@ -560,16 +571,25 @@ jkjs.stat = function() {
     arr.push([ x1, that.weightedNorm(x1, a, b, m, s) ]);
     arr.push([ x2, that.weightedNorm(x2, a, b, m, s) ]);
     if(a !== 0) {
-      var bam = a*m - b;
-      var a2 = a*a;
-      var b2 = b*b;
-      var s2 = s*s;
-      var m2 = m*m;
-      var root = Math.sqrt(b2 + 2*a*b*m + a2*m2 + 4*a2*s2);
-      var x3 = (bam + root) / a * 0.5;
-      var x4 = (bam - root) / a * 0.5;
-      arr.push([ x3, that.weightedNorm(x3, a, b, m, s) ]);
-      arr.push([ x4, that.weightedNorm(x4, a, b, m, s) ]);
+      if(that.EMPIRICLY_WEIGHTED_NORM) {
+        var step = s * 1e-2;
+        var _x1 = Math.max(Math.min(x1, m + s*8), m - s*8);
+        var _x2 = Math.max(Math.min(x2, m + s*8), m - s*8);
+        for(var x = _x1;x < _x2;x += step) {
+          arr.push([ x, that.weightedNorm(x, a, b, m, s) ]);
+        }
+      } else {
+        var bam = a*m - b;
+        var a2 = a*a;
+        var b2 = b*b;
+        var s2 = s*s;
+        var m2 = m*m;
+        var root = Math.sqrt(b2 + 2*a*b*m + a2*m2 + 4*a2*s2);
+        var x3 = (bam + root) / a * 0.5;
+        var x4 = (bam - root) / a * 0.5;
+        arr.push([ x3, that.weightedNorm(x3, a, b, m, s) ]);
+        arr.push([ x4, that.weightedNorm(x4, a, b, m, s) ]);
+      }
     }
     arr.sort(function(a, b) {
       return d3.ascending(a[1], b[1]);
