@@ -41,7 +41,7 @@ jkjs.util = function() {
   };
 
   // suitable for SVGs
-  this.BIG_NUMBER = 1e8;
+  this.BIG_NUMBER = 1e6;
 
   /**
    * Converts a list of classes into an object that can be used by the d3 classed function to activate all those classes.
