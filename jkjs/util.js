@@ -100,10 +100,10 @@ jkjs.util = function() {
     var queryString = location.search.substring(1);
     var keyValues = queryString.split('&');
     keyValues.forEach(function(e) {
-      var key = e.split('=');
+      var key = that.split(e, '=', 1);
       if (key.length > 1) {
         assoc[decode(key[0])] = decode(key[1]).replace(/\/+$/,'');
-      } else {
+      } else if(e.length > 0) {
         assoc[decode(e)] = true;
       }
     });
