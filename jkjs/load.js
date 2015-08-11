@@ -5,6 +5,13 @@
 
 jkjs = window.jkjs || {}; // init namespace
 
+if (!String.prototype.startsWith) {
+  String.prototype.startsWith = function(searchString, position) {
+    position = position || 0;
+    return this.indexOf(searchString, position) === position;
+  };
+}
+
 jkjs.load = function(the_file) {
 
   function FileLoader(file) {
@@ -12,6 +19,9 @@ jkjs.load = function(the_file) {
     var loader = getLoaderFor(file);
 
     function getLoaderFor(file) {
+      if(file.startsWith("data:text/csv;")) {
+        return new CSVLoader(file);
+      }
       var dot = file.lastIndexOf(".");
       if(dot < 0) return null;
       var suffix = file.substring(dot + 1);
