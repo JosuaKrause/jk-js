@@ -277,6 +277,14 @@ jkjs.util = function() {
     return that.unique(tmp);
   };
 
+  this.eqArr = function(arrA, arrB) {
+    if(arrA.length !== arrB.length) return false;
+    for(var ix = 0;ix < arrA.length;ix += 1) {
+      if(arrA[ix] !== arrB[ix]) return false;
+    }
+    return true;
+  };
+
   this.unique = function(ixs) {
     if(!ixs.length) return ixs;
     // sorted ixs

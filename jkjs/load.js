@@ -12,6 +12,7 @@ if (!String.prototype.startsWith) {
   };
 }
 
+jkjs.LOAD_VERBOSE = true;
 jkjs.load = function(the_file) {
 
   function FileLoader(file) {
@@ -81,7 +82,7 @@ jkjs.load = function(the_file) {
       loadJSON(inputFile, function(types) {
         loadRowsWithTypes(cb, types);
       }, function() {
-        console.log("no category file -- automatic type detection");
+        jkjs.LOAD_VERBOSE && console.log("no category file -- automatic type detection");
         loadRows(cb, err);
       });
     }
@@ -177,11 +178,11 @@ jkjs.load = function(the_file) {
 
     this.detectType = function(col, name) {
       if(name.trim().startsWith("num_")) {
-        console.log("num", name, "because of name");
+        jkjs.LOAD_VERBOSE && console.log("num", name, "because of name");
         return false;
       }
       if(name.trim().startsWith("cat_")) {
-        console.log("cat", name, "because of name");
+        jkjs.LOAD_VERBOSE && console.log("cat", name, "because of name");
         return true;
       }
       var lastNumeric = "";
@@ -199,7 +200,7 @@ jkjs.load = function(the_file) {
         }
       });
       var isNom = (col.length - numNom) / col.length < numeric_threshold;
-      console.log(isNom ? "cat" : "num", name, lastNumeric, lastNominal);
+      jkjs.LOAD_VERBOSE && console.log(isNom ? "cat" : "num", name, lastNumeric, lastNominal);
       return isNom;
     };
 
