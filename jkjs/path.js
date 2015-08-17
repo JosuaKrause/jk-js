@@ -9,33 +9,96 @@ jkjs = window.jkjs || {}; // init namespace
 jkjs.Path = function() {
   this.slack = "";
   this.strs = [];
+  this.gracefulNaN = false; // if true try to gracefully handle NaN values
+  this.errState = false; // if true the next correct operation will be converted to a move
 };
 jkjs.Path.prototype.isEmpty = function() {
   return !this.strs.length;
 };
+jkjs.Path.prototype.crash_and_burn = function() {
+  var gn = this.gracefulNaN;
+  this.gracefulNaN = false;
+  this.move(Number.NaN, Number.NaN);
+  this.gracefulNaN = gn;
+};
 jkjs.Path.prototype.move = function(x, y) {
+  if(this.gracefulNaN && (!Number.isFinite(x) || !Number.isFinite(y))) {
+    this.errState = true;
+    return;
+  }
   if(!this.slack.length) {
     this.slack = "M".concat(x, " ", y);
   }
   this.strs.push(" M".concat(x, " ", y));
+  this.errState = false;
 };
 jkjs.Path.prototype.line = function(x, y) {
+  if(this.gracefulNaN && (!Number.isFinite(x) || !Number.isFinite(y))) {
+    this.errState = true;
+    return;
+  }
+  if(this.errState) {
+    this.move(x, y);
+    return;
+  }
   this.strs.push(" L".concat(x, " ", y));
 };
 jkjs.Path.prototype.quad = function(mx, my, x, y) {
+  if(this.gracefulNaN && (!Number.isFinite(x) || !Number.isFinite(y))) {
+    this.errState = true;
+    return;
+  }
+  if(this.gracefulNaN && (!Number.isFinite(mx) || !Number.isFinite(my))) {
+    this.move(x, y);
+    return;
+  }
+  if(this.errState) {
+    this.move(x, y);
+    return;
+  }
   this.strs.push(" Q".concat(mx, " ", my, " ", x, " ", y));
 };
 jkjs.Path.prototype.moveBy = function(dx, dy) {
+  if(this.errState) {
+    this.crash_and_burn();
+    return;
+  }
+  if(this.gracefulNaN && (!Number.isFinite(dx) || !Number.isFinite(dy))) {
+    this.errState = true;
+    return;
+  }
   this.strs.push(" m".concat(dx, " ", dy));
 };
 jkjs.Path.prototype.lineBy = function(dx, dy) {
+  if(this.errState) {
+    this.crash_and_burn();
+    return;
+  }
+  if(this.gracefulNaN && (!Number.isFinite(dx) || !Number.isFinite(dy))) {
+    this.errState = true;
+    return;
+  }
   this.strs.push(" l".concat(dx, " ", dy));
 };
 jkjs.Path.prototype.quadBy = function(dmx, dmy, dx, dy) {
+  if(this.errState) {
+    this.crash_and_burn();
+    return;
+  }
+  if(this.gracefulNaN && (!Number.isFinite(dx) || !Number.isFinite(dy))) {
+    this.errState = true;
+    return;
+  }
+  if(this.gracefulNaN && (!Number.isFinite(dmx) || !Number.isFinite(dmy))) {
+    this.errState = false;
+    this.moveBy(dx, dy);
+    return;
+  }
   this.strs.push(" q".concat(dmx, " ", dmy, " ", dx, " ", dy));
 };
 jkjs.Path.prototype.close = function() {
   this.strs.push(" Z");
+  this.errState = false; // if no Z is possible we will crash & burn
 };
 jkjs.Path.prototype.addPoly = function(arr) {
   if(!arr.length) return;
