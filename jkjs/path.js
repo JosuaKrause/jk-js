@@ -10,6 +10,10 @@ jkjs.Path = function() {
   this.slack = "";
   this.strs = [];
 };
+jkjs.Path.prototype.clear = function() {
+  this.slack = "";
+  this.strs = [];
+};
 jkjs.Path.prototype.isEmpty = function() {
   return !this.strs.length;
 };
