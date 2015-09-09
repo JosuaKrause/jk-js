@@ -128,7 +128,7 @@ jkjs.Lasso = function(sel) {
     }
     if(arr.some(function(p) {
       return pointInPolygon(p, rect);
-    }) {
+    })) {
       return true;
     }
     return false;
