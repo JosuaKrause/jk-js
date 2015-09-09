@@ -108,4 +108,32 @@ jkjs.Lasso = function(sel) {
     }
     return numCrossings & 1 != 0;
   }
+
+  function rectInPolygon(pos, arr) {
+    var x = pos[0];
+    var y = pos[1];
+    var w = pos[2];
+    var h = pos[3];
+    var rect = [
+      [ x, y ],
+      [ x + w, y ],
+      [ x + w, y + h ],
+      [ x, y + h ]
+    ];
+    // not 100% precise
+    if(rect.some(function(p) {
+      return pointInPolygon(p, arr);
+    })) {
+      return true;
+    }
+    if(arr.some(function(p) {
+      return pointInPolygon(p, rect);
+    }) {
+      return true;
+    }
+    return false;
+  }
+
+  this.pointInPolygon = pointInPolygon;
+  this.rectInPolygon = rectInPolygon;
 }; // jkjs.Lasso
