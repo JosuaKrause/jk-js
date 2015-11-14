@@ -47,7 +47,7 @@ jkjs.Lasso = function(sel) {
 
   function dragUpdate() {
     if(!objProvider) return;
-    var objs = objProvider();
+    var objs = objProvider(selArr);
     var curSel = [];
     objs.forEach(function(obj) {
       var objPos = objToPos(obj);
