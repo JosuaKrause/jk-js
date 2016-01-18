@@ -226,6 +226,14 @@ jkjs.util = function() {
     return grayValue > 0.5 ? d3.rgb("black") : d3.rgb("white");
   };
 
+  this.distinct = function(values) {
+    var set = {};
+    values.forEach(function(v) {
+      set[v] = true;
+    });
+    return Object.keys(set);
+  };
+
   this.ensureSorted = function(arr) {
     if(!arr.length) return;
     var prev = Number.NEGATIVE_INFINITY;
