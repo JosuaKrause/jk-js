@@ -57,7 +57,7 @@ jkjs.util = function() {
       obj[c] = true;
       return obj;
     }, {});
-  }
+  };
 
   /**
    * An implementation to set attributes only when they have changed.
@@ -108,7 +108,7 @@ jkjs.util = function() {
       }
     });
     return assoc;
-  }
+  };
 
   /**
    * Getter.
@@ -117,7 +117,24 @@ jkjs.util = function() {
    */
   this.getOwnURL = function() {
     return location.origin + location.pathname;
-  }
+  };
+
+  this.url = function(url, args) {
+    return url + that.args(args);
+  };
+
+  this.args = function(args) {
+    return Object.keys(args).reduce(function(str, val, ix) {
+      if(args[val] === null) {
+        return str;
+      }
+      str += str.length ? "&" : "?";
+      str += encodeURIComponent(val);
+      str += "=";
+      str += encodeURIComponent(args[val]);
+      return str;
+    }, "");
+  };
 
   /**
    * Whether the given object has no keys.
@@ -128,7 +145,7 @@ jkjs.util = function() {
    */
   this.isEmpty = function(obj) {
     return Object.keys(obj).length == 0;
-  }
+  };
 
   /**
    * Maps elements of an array to an array of results.
@@ -145,7 +162,7 @@ jkjs.util = function() {
    */
   this.flatMap = function(arr, fun) {
     return [].concat.apply([], arr.map(fun));
-  }
+  };
 
   /**
    * A python like split function.
@@ -184,7 +201,7 @@ jkjs.util = function() {
     }
     out.push(cur);
     return out;
-  }
+  };
 
   /**
    * Moves all elements of the given selection to either the front or the back of the parent's children list resulting in
@@ -205,7 +222,7 @@ jkjs.util = function() {
         parent.insertBefore(obj, parent.firstChild);
       }
     });
-  }
+  };
 
   this.rectIntersect = function(rectA, rectB) {
     if(rectA.width <= 0 || rectA.height <= 0 || rectB.width <= 0 || rectB.height <= 0) {
@@ -438,7 +455,7 @@ jkjs.util = function() {
       console.log("TIMING " + name, (to - from) + "ms");
     }
     return res;
-  }
+  };
 
   this.sample = function(arr, count) {
     var reservoir = [];
@@ -483,7 +500,7 @@ jkjs.util = function() {
         cb(arr[i]);
       }
     };
-  } // Randomizer
+  }; // Randomizer
 
 }; // jkjs.util
 
@@ -497,13 +514,13 @@ if(!String.prototype.startsWith) {
     value: function(searchString, position) {
       position = position || 0;
       return this.lastIndexOf(searchString, position) === position;
-    }
+    },
   });
 }
 
 Number.isNaN = Number.isNaN || function(value) {
   return typeof value === "number" && value !== value;
-}
+};
 
 if(typeof Number.isFinite !== 'function') {
   Number.isFinite = function isFinite(value) {
