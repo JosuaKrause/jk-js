@@ -43,6 +43,22 @@ jkjs.util = function() {
   // suitable for SVGs
   this.BIG_NUMBER = 1e6;
 
+  this.svgWidth = function(sel) {
+    var w = sel.node().clientWidth;
+    if(w === 0) { // taking care of firefox
+      w = sel.node().getBoundingClientRect()["width"];
+    }
+    return w;
+  };
+
+  this.svgHeight = function(sel) {
+    var h = sel.node().clientHeight;
+    if(h === 0) { // taking care of firefox
+      h = sel.node().getBoundingClientRect()["height"];
+    }
+    return h;
+  };
+
   /**
    * Converts a list of classes into an object that can be used by the d3 classed function to activate all those classes.
    *
