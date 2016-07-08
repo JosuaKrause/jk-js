@@ -85,4 +85,28 @@ window.jkjs.Cell = function(_init) {
     value = _init;
     oldValue = _init;
   }
-}; // Cell
+}; // window.jkjs.Cell
+window.jkjs.Cell.anyChange = function(list, cb) {
+  list.forEach(function(c) {
+    c.addChangeListener(function() {
+      cb();
+    });
+  });
+};
+window.jkjs.Cell.allChange = function(list, cb) {
+  var chgs = list.map(function(c, ix) {
+    c.addChangeListener(function() {
+      chgs[ix] = true;
+      var all = chgs.every(function(b) {
+        return b;
+      });
+      if(all) {
+        for(var cix = 0;cix < chgs.length;cix += 1) {
+          chgs[cix] = false;
+        }
+        cb();
+      }
+    });
+    return false;
+  });
+};
