@@ -74,6 +74,15 @@ window.jkjs.Cell = function(_init) {
     });
   };
 
+  this.createAccessor = function() {
+    return function(_) {
+      if(!arguments.length) {
+        return get();
+      }
+      set(_);
+    };
+  };
+
   Object.defineProperties(this, {
     "value": {
       get: function() { return get(); },
