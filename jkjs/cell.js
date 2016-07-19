@@ -119,3 +119,25 @@ window.jkjs.Cell.allChange = function(list, cb) {
     return false;
   });
 };
+
+window.jkjs.Event = function(_) {
+  var that = this;
+  var cell = new window.jkjs.Cell(false);
+  this.emit = function() {
+    cell.value = !cell.value;
+  };
+  this.emitter = function() {
+    return function() {
+      that.emit();
+    };
+  };
+  this.addEventListener = function(cb) {
+    cell.addUpdateListener(function() {
+      cb();
+    });
+  };
+
+  if(arguments.length) {
+    that.addEventListener(_);
+  }
+}; // window.jkjs.Event
