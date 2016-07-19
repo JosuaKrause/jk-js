@@ -8,11 +8,15 @@ window.jkjs = window.jkjs || {}; // init namespace
 window.jkjs.Select = function(sel, cell, label) {
   var that = this;
   var select;
+  var text;
+  var lbl;
   if(label) {
-    var lbl = sel.append("label");
-    lbl.append("span").text(label);
+    lbl = sel.append("label");
+    text = lbl.append("span").text(label);
     select = lbl.append("select");
   } else {
+    lbl = d3.select();
+    text = d3.select();
     select = sel.append("select");
   }
   select.on("change", function() {
@@ -56,5 +60,15 @@ window.jkjs.Select = function(sel, cell, label) {
     }).order();
     select.node().value = cell.value;
     return that;
+  };
+
+  this.select = function() {
+    return select;
+  };
+  this.text = function() {
+    return text;
+  };
+  this.label = function() {
+    return lbl;
   };
 }; // window.jkjs.Select
