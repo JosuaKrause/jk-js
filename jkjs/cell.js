@@ -8,38 +8,66 @@ window.jkjs = window.jkjs || {}; // init namespace
 window.jkjs.Cell = function(_init) {
   var that = this;
   var value = null;
-
-  var changePrimed = false;
-  var updatePrimed = false;
   var oldValue = null;
+
+  var changePs = {};
+  var changePrimed = false;
+  function primeChange() {
+    if(changePrimed) return;
+    setTimeout(function() {
+      // gather listeners and reset values beforehand to
+      // have defined behavior if some Cell methods are
+      // called during execution of listeners
+      changePrimed = false;
+      var same = Object.is(oldValue, value);
+      var listeners = Object.keys(changePs).filter(function(ix) {
+        return !same || changePs[ix] > 1;
+      }).map(function(ix) {
+        return changeListeners[ix];
+      });
+      changePs = {};
+      listeners.forEach(function(l) {
+        l(value, oldValue, that);
+      });
+    }, 0);
+    changePrimed = true;
+  }
+
+  var updatePs = {};
+  var updatePrimed = false;
+  function primeUpdate() {
+    if(updatePrimed) return;
+    setTimeout(function() {
+      // gather listeners and reset values beforehand to
+      // have defined behavior if some Cell methods are
+      // called during execution of listeners
+      updatePrimed = false;
+      var listeners = Object.keys(updatePs).map(function(ix) {
+        return updateListeners[ix];
+      });
+      updatePs = {};
+      listeners.forEach(function(l) {
+        l(value, that);
+      });
+    }, 0);
+    updatePrimed = true;
+  }
+
   function set(v) {
     if(!changePrimed) {
       oldValue = value;
     }
     value = v;
     if(changeListeners.length && !Object.is(oldValue, value)) {
-      if(!changePrimed) {
-        setTimeout(function() {
-          changePrimed = false;
-          if(Object.is(oldValue, value)) {
-            return;
-          }
-          changeListeners.forEach(function(l) {
-            l(value, oldValue, that);
-          });
-        }, 0);
-        changePrimed = true;
-      }
+      changeListeners.forEach(function(_, ix) {
+        changePs[ix] = changePs[ix] || 1;
+      });
+      primeChange();
     }
-    if(!updatePrimed) {
-      setTimeout(function() {
-        updatePrimed = false;
-        updateListeners.forEach(function(l) {
-          l(value, that);
-        });
-      }, 0);
-      updatePrimed = true;
-    }
+    updateListeners.forEach(function(_, ix) {
+      updatePs[ix] = true;
+    });
+    primeUpdate();
   };
 
   function get() {
@@ -48,29 +76,47 @@ window.jkjs.Cell = function(_init) {
 
   var updateListeners = [];
   this.addUpdateListener = function(l) {
+    updatePs[updateListeners.length] = true;
     updateListeners.push(l);
-    if(!updatePrimed) {
-      l(value, that);
-    }
+    primeUpdate();
     return l;
   };
   this.removeUpdateListener = function(l) {
-    updateListeners = updateListeners.filter(function(ll) {
-      return !Object.is(ll, l);
+    var pos = 0;
+    var oldUpdatePs = updatePs;
+    updatePs = {};
+    updateListeners = updateListeners.filter(function(ll, ix) {
+      var allow = !Object.is(ll, l);
+      if(allow) {
+        if(oldUpdatePs[ix]) {
+          updatePs[pos] = true;
+        }
+        pos += 1;
+      }
+      return allow;
     });
   };
 
   var changeListeners = [];
   this.addChangeListener = function(l) {
+    changePs[changeListeners.length] = 2;
     changeListeners.push(l);
-    if(!changePrimed) {
-      l(value, oldValue, that);
-    }
+    primeChange();
     return l;
   };
   this.removeChangeListener = function(l) {
-    changeListeners = changeListeners.filter(function(ll) {
-      return !Object.is(ll, l);
+    var pos = 0;
+    var oldChangePs = changePs;
+    changePs = {};
+    changeListeners = changeListeners.filter(function(ll, ix) {
+      var allow = !Object.is(ll, l);
+      if(allow) {
+        if(oldChangePs[ix]) {
+          changePs[pos] = oldChangePs[ix];
+        }
+        pos += 1;
+      }
+      return allow;
     });
   };
 
@@ -95,6 +141,9 @@ window.jkjs.Cell = function(_init) {
     oldValue = _init;
   }
 }; // window.jkjs.Cell
+window.jkjs.Cell.prototype.toString = function() {
+  return "" + this.value;
+};
 window.jkjs.Cell.anyChange = function(list, cb) {
   list.forEach(function(c) {
     c.addChangeListener(function() {

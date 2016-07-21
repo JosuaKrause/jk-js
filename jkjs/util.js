@@ -127,6 +127,23 @@ jkjs.util = function() {
   };
 
   /**
+   * Interprets the given string as boolean.
+   * The words true/false and yes/no are interpreted directly ignoring case.
+   * If the string is a number zeros are interpreted as false.
+   * All other non-empty strings are interpreted as true.
+   * White-spaces are ignored.
+   * If the input argument is undefined it is interpreted as false.
+   */
+  this.asBool = function(s) {
+    if(!s) return false;
+    var t = s.trim().toLowerCase();
+    if(t === "false" || t === "no" || t === "") {
+      return false;
+    }
+    return +t !== 0;
+  };
+
+  /**
    * Getter.
    *
    * @returns {String} The current URL.
