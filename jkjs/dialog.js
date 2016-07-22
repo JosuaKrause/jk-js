@@ -111,7 +111,7 @@ jkjs.dialog = function() {
       var inputNode = input.node();
       inputNode.setSelectionRange(0, initStr.length);
       inputNode.focus();
-      inputNode.scrollIntoViewIfNeeded();
+      inputNode.scrollIntoView();
       var btns = pp.append("span").classed({
         "input-group-btn": true
       });
