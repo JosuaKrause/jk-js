@@ -41,6 +41,22 @@ jkjs.Path.prototype.quadBy = function(dmx, dmy, dx, dy) {
 jkjs.Path.prototype.close = function() {
   this.strs.push(" Z");
 };
+jkjs.Path.prototype.arcSegment = function(x, y, radIn, radOut, fromAngle, toAngle) {
+  var startOutX = x + Math.cos(fromAngle * Math.PI / 180.0) * radOut;
+  var startOutY = y + Math.sin(fromAngle * Math.PI / 180.0) * radOut;
+  var startInX = x + Math.cos(fromAngle * Math.PI / 180.0) * radIn;
+  var startInY = y + Math.sin(fromAngle * Math.PI / 180.0) * radIn;
+  var endOutX = x + Math.cos(toAngle * Math.PI / 180.0) * radOut;
+  var endOutY = y + Math.sin(toAngle * Math.PI / 180.0) * radOut;
+  var endInX = x + Math.cos(toAngle * Math.PI / 180.0) * radIn;
+  var endInY = y + Math.sin(toAngle * Math.PI / 180.0) * radIn;
+  var largeArcFlag = toAngle - fromAngle <= 180.0 ? "0" : "1";
+  this.move(startOutX, startOutY);
+  this.strs.push(" A".concat(radOut, " ", radOut, " 0 ", largeArcFlag, " 1 ", endOutX, " ", endOutY));
+  this.line(endInX, endInY);
+  this.strs.push(" A".concat(radIn, " ", radIn, " 180 ", largeArcFlag, " 0 ", startInX, " ", startInY));
+  this.close();
+};
 jkjs.Path.prototype.addPoly = function(arr) {
   if(!arr.length) return;
   var that = this;
