@@ -535,6 +535,17 @@ jkjs.util = function() {
     };
   }; // Randomizer
 
+  this.rndFrom = function(arr, map) {
+    var m = arguments.length > 1 ? map : function(e, _) {
+      return e;
+    };
+    var r = new that.Randomizer(arr.length);
+    for(var i = 0;i < arr.length;i += 1) {
+      r.push(m(arr[i], i));
+    }
+    return r;
+  };
+
 }; // jkjs.util
 
 jkjs.util = new jkjs.util(); // create instance
