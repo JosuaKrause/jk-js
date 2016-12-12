@@ -546,6 +546,17 @@ jkjs.util = function() {
     return r;
   };
 
+  this.inViewport = function(sel) {
+    var el = sel.node();
+    var rect = el.getBoundingClientRect();
+    return (
+      rect["top"] <= (window.innerHeight || document.documentElement.clientHeight) &&
+      rect["left"] <= (window.innerWidth || document.documentElement.clientWidth) &&
+      rect["bottom"] >= 0 &&
+      rect["right"] >= 0
+    );
+  };
+
 }; // jkjs.util
 
 jkjs.util = new jkjs.util(); // create instance

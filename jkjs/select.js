@@ -13,13 +13,18 @@ window.jkjs = window.jkjs || {}; // init namespace
     var lbl;
     if(label) {
       lbl = sel.append("label");
-      if(flippedLabel) {
-        select = lbl.append(selectName);
-        text = lbl.append("span").text(" " +label);
-      } else {
-        text = lbl.append("span").text(label + " ");
-        select = lbl.append(selectName);
-      }
+      text = lbl.append("span").text(label);
+      select = lbl.append(selectName);
+      lbl.style({
+        "clear": "both",
+        "width": "100%",
+      });
+      text.style({
+        "float": flippedLabel ? "right" : "left",
+      });
+      select.style({
+        "float": flippedLabel ? "left" : "right",
+      });
     } else {
       lbl = d3.select();
       text = d3.select();
