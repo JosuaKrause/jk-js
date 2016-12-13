@@ -113,12 +113,12 @@ jkjs.util = function() {
     var decode = function(s) {
       return decodeURIComponent(s.replace(/\+/g, " "));
     };
-    var queryString = location.search.substring(1);
+    var queryString = location.search.replace(/\/+$/,'').substring(1);
     var keyValues = queryString.split('&');
     keyValues.forEach(function(e) {
       var key = that.split(e, '=', 1);
       if (key.length > 1) {
-        assoc[decode(key[0])] = decode(key[1]).replace(/\/+$/,'');
+        assoc[decode(key[0])] = decode(key[1]);
       } else if(e.length > 0) {
         assoc[decode(e)] = true;
       }
