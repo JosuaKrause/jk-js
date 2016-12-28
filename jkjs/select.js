@@ -115,6 +115,14 @@ window.jkjs = window.jkjs || {}; // init namespace
     };
   }; // window.jkjs.Spinner
 
+  window.jkjs.InputText = function(sel, cell, label, flippedLabel) {
+    var that = this;
+    var inputText = init(that, sel, cell, label, flippedLabel, "input", "change", "value");
+    inputText.attr({
+      "type": "text",
+    });
+  }; // window.jkjs.InputText
+
   window.jkjs.Checkbox = function(sel, cell, label, flippedLabel) {
     var that = this;
     var checkbox = init(that, sel, cell, label, flippedLabel, "input", "change", "checked");
