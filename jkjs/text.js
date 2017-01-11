@@ -18,11 +18,23 @@ jkjs.text = function() {
   this.align = {
     left: ALIGN_LEFT,
     middle: ALIGN_MIDDLE,
-    right: ALIGN_RIGHT
+    right: ALIGN_RIGHT,
+  };
+
+  /** Top position of text. */
+  var POS_TOP = 0;
+  /** Center position of text. */
+  var POS_CENTER = 1;
+  /** Bottom position of text. */
+  var POS_BOTTOM = 2;
+
+  this.position = {
+    top: POS_TOP,
+    center: POS_CENTER,
+    bottom: POS_BOTTOM,
   };
 
   var exact = true;
-
   this.exact = function(_) {
     if(!arguments.length) return exact;
     exact = _;
@@ -39,7 +51,7 @@ jkjs.text = function() {
       if(!exact) {
         selText.__textSizeCache = {
           w: ow / line.length,
-          h: oh
+          h: oh,
         };
       }
     } else {
@@ -49,7 +61,7 @@ jkjs.text = function() {
     return {
       high: oh > h,
       wide: ow > w,
-      height: oh
+      height: oh,
     };
   }
 
@@ -59,26 +71,30 @@ jkjs.text = function() {
   var shellip = "..";
 
   function shrink(line, wordwrap, before) {
-    if (!wordwrap) {
-      if (line.length < 4)
+    if(!wordwrap) {
+      if(line.length < 4) {
         return [];
+      }
       var sl = line.substring(0, line.length - (hellip.length + 1));
-      if (sl[sl.length - 1] == ' ') {
+      if(sl[sl.length - 1] === ' ') {
         sl = sl.substring(0, sl.length - 1);
       }
-      if (line.length < 7) {
-        if (line[line.length - 1] == shellip[shellip.length - 1])
+      if(line.length < 7) {
+        if(line[line.length - 1] === shellip[shellip.length - 1]) {
           return [ line.substring(0, line.length - (shellip.length + 1)) + shellip ];
+        }
         return [ sl + shellip ];
       }
       return [ sl + hellip ];
     }
     var space = line.lastIndexOf(" ");
-    if (space < 0)
+    if(space < 0) {
       return before.length ? [ line, before ] : [ line ];
+    }
     var first = line.substring(0, space);
-    if (line.length > space + 1)
+    if(line.length > space + 1) {
       return [ first, line.substring(space + 1) + " " + before ];
+    }
     return before.length ? [ first, before ] : [ first ];
   }
 
@@ -88,38 +104,42 @@ jkjs.text = function() {
     var curY = box.y;
     var maxY = box.y + box.height;
     var height = Math.floor(all.height);
-    if (!all.high) {
-      if (!all.wide) {
+    if(!all.high) {
+      if(!all.wide) {
         segments.push(text);
       } else {
         var ww = wordwrap;
         var cur = text;
         var rem = "";
-        while (true) {
+        while(true) {
           var s = shrink(cur, ww, rem);
-          if (!s.length)
+          if(!s.length) {
             break;
-          if (s[0] == cur)
+          }
+          if(s[0] == cur) {
             ww = false;
+          }
           var curFit = fit(s[0], textSel, w, maxY - curY);
-          if (curFit.high) {
-            if (!segments.length)
+          if(curFit.high) {
+            if(!segments.length) {
               break;
+            }
             curY -= height;
             cur = segments.pop() + " " + s[0];
             rem = "";
             ww = false;
             continue;
           }
-          if (curFit.wide) {
+          if(curFit.wide) {
             cur = s[0];
             rem = s.length > 1 ? s[1] : "";
             continue;
           }
           segments.push(s[0]);
           curY += height;
-          if (s.length < 2)
+          if(s.length < 2) {
             break;
+          }
           cur = s[1];
           rem = "";
         }
@@ -140,60 +160,86 @@ jkjs.text = function() {
    * @param wordwrap
    *          Whether to allow wrapping around word boundaries when the box is too small. If false only ellipses are used.
    * @param horAlign
-   *          The horizontal alignment of the text. Defaults to left alignment. Valid values are jkjs.text.align{left, middle, right}.
+   *          The horizontal alignment of the text. Defaults to left alignment. Valid values are jkjs.text.align.{left, middle, right}.
+   * @param verPos
+   *          The vertical positioning. Defaults to top. Valid values are jkjs.text.position.{top, center, bottom}.
+   * @param addTitle
+   *          Whether to add a title element for tool-tips. Defaults to false.
    * @returns
    *          Whether the text element contains any text. This can be used to remove the text element if not needed.
    *          <pre>jkjs.text.display(sel, ...) || sel.remove();</pre>
    */
-  this.display = function(selText, text, box, wordwrap, horAlign) {
+  this.display = function(selText, text, box, wordwrap, horAlign, verPos, addTitle) {
     // clean previous state
     selText.selectAll("tspan").remove();
     selText.attr({
       "x": null,
       "y": null,
     }).style({
-      "text-anchor": null
+      "text-anchor": null,
+      "alignment-baseline": null,
     });
     // compute segments
     var ra = horAlign || ALIGN_LEFT;
-    var w = box.width;
-    var all = fit(text, selText, w, box.height);
+    var boxW = box.width;
+    var all = fit(text, selText, boxW, box.height);
     var height = Math.floor(all.height);
     var segments = computeSegments(box, text, wordwrap, selText, all);
     // produce geometry
-    if (ra !== ALIGN_LEFT) {
+    if(ra !== ALIGN_LEFT) {
       selText.style({
-        "text-anchor": ra === ALIGN_MIDDLE ? "middle" : "end"
+        "text-anchor": ra === ALIGN_MIDDLE ? "middle" : "end",
       });
+    }
+    var backH = 0;
+    var vp = verPos || POS_TOP;
+    if(vp === POS_CENTER) {
+      selText.style({
+        "alignment-baseline": "central",
+      });
+      backH = height * 0.5;
     }
     var x = box.x;
     var y = box.y;
     var anchorX;
-    if (ra === ALIGN_LEFT) {
+    if(ra === ALIGN_LEFT) {
       anchorX = x;
-    } else if (ra === ALIGN_MIDDLE) {
-      anchorX = x + w * 0.5;
+    } else if(ra === ALIGN_MIDDLE) {
+      anchorX = x + boxW * 0.5;
     } else {
-      anchorX = x + w;
+      anchorX = x + boxW;
     }
-    if (segments.length == 1) {
+    var boxH = box.height;
+    var offH;
+    if(vp === POS_TOP) {
+      offH = y;
+    } else if(vp === POS_CENTER) {
+      offH = y + (boxH - segments.length * height) * 0.5;
+    } else if(vp === POS_BOTTOM) {
+      offH = y + boxH - segments.length * height;
+    }
+    if(segments.length === 1) {
       selText.text(segments[0]);
       selText.attr({
         "x": anchorX,
-        "y": y + height
+        "y": offH + height - backH,
       });
     } else {
       selText.text("");
-      if (segments.length) {
-        var posY = y;
+      if(segments.length) {
+        var posY = offH;
         segments.forEach(function(seg) {
           posY += height;
           selText.append("tspan").attr({
             "x": anchorX,
-            "y": posY
+            "y": posY - backH,
           }).text(seg);
         });
       }
+    }
+    if(addTitle) {
+      selText.selectAll("title").remove();
+      selText.append("title").text(text);
     }
     return segments.length != 0;
   };
