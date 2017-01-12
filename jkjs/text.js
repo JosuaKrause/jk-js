@@ -187,6 +187,9 @@ jkjs.text = function() {
     var all = fit(text, selText, boxW, box.height);
     var height = Math.floor(all.height);
     var segments = computeSegments(box, text, wordwrap, selText, all);
+    if(!segments.length && guaranteeText) {
+      segments = [ shellip ];
+    }
     // produce geometry
     if(ra !== ALIGN_LEFT) {
       selText.style({
@@ -211,19 +214,17 @@ jkjs.text = function() {
     } else {
       anchorX = x + boxW;
     }
-    var effectiveSegments = Math.max(segments.length, 1);
     var boxH = box.height;
     var offH;
     if(vp === POS_TOP) {
       offH = y;
     } else if(vp === POS_CENTER) {
-      offH = y + (boxH - effectiveSegments * height) * 0.5;
+      offH = y + (boxH - segments.length * height) * 0.5;
     } else if(vp === POS_BOTTOM) {
-      offH = y + boxH - effectiveSegments * height;
+      offH = y + boxH - segments.length * height;
     }
     if(segments.length === 1) {
-      selText.text(segments[0]);
-      selText.attr({
+      selText.text(segments[0]).attr({
         "x": anchorX,
         "y": offH + height - backH,
       });
@@ -238,11 +239,6 @@ jkjs.text = function() {
             "y": posY - backH,
           }).text(seg);
         });
-      } else if(guaranteeText) {
-        selText.attr({
-          "x": anchorX,
-          "y": offH + height - backH,
-        }).text(shellip);
       }
     }
     if(addTitle) {
