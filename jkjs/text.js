@@ -165,11 +165,13 @@ jkjs.text = function() {
    *          The vertical positioning. Defaults to top. Valid values are jkjs.text.position.{top, center, bottom}.
    * @param addTitle
    *          Whether to add a title element for tool-tips. Defaults to false.
+   * @param guaranteeText
+   *          Whether text will be forced even if there is not enough room. Defaults to false.
    * @returns
    *          Whether the text element contains any text. This can be used to remove the text element if not needed.
    *          <pre>jkjs.text.display(sel, ...) || sel.remove();</pre>
    */
-  this.display = function(selText, text, box, wordwrap, horAlign, verPos, addTitle) {
+  this.display = function(selText, text, box, wordwrap, horAlign, verPos, addTitle, guaranteeText) {
     // clean previous state
     selText.selectAll("tspan").remove();
     selText.attr({
@@ -209,14 +211,15 @@ jkjs.text = function() {
     } else {
       anchorX = x + boxW;
     }
+    var effectiveSegments = Math.max(segments.length, 1);
     var boxH = box.height;
     var offH;
     if(vp === POS_TOP) {
       offH = y;
     } else if(vp === POS_CENTER) {
-      offH = y + (boxH - segments.length * height) * 0.5;
+      offH = y + (boxH - effectiveSegments * height) * 0.5;
     } else if(vp === POS_BOTTOM) {
-      offH = y + boxH - segments.length * height;
+      offH = y + boxH - effectiveSegments * height;
     }
     if(segments.length === 1) {
       selText.text(segments[0]);
@@ -235,6 +238,11 @@ jkjs.text = function() {
             "y": posY - backH,
           }).text(seg);
         });
+      } else if(guaranteeText) {
+        selText.attr({
+          "x": anchorX,
+          "y": offH + height - backH,
+        }).text(shellip);
       }
     }
     if(addTitle) {
