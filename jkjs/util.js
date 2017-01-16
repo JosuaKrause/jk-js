@@ -144,6 +144,14 @@ jkjs.util = function() {
   };
 
   /**
+   * Interprets the given string as number.
+   * If it is undefined, null, or not a number the default value `def` is returned.
+   */
+  this.asNum = function(s, def) {
+    return s === null || Number.isNaN(+s) ? def : +s;
+  };
+
+  /**
    * Getter.
    *
    * @returns {String} The current URL.
