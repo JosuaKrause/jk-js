@@ -42,6 +42,11 @@ jkjs.Path.prototype.close = function() {
   this.strs.push(" Z");
 };
 jkjs.Path.prototype.arcSegment = function(x, y, radIn, radOut, fromAngle, toAngle) {
+  var full = false;
+  if(toAngle - fromAngle >= 360.0) {
+    toAngle = fromAngle + 359.99;
+    full = true;
+  }
   var startOutX = x + Math.cos(fromAngle * Math.PI / 180.0) * radOut;
   var startOutY = y + Math.sin(fromAngle * Math.PI / 180.0) * radOut;
   var startInX = x + Math.cos(fromAngle * Math.PI / 180.0) * radIn;
@@ -53,7 +58,12 @@ jkjs.Path.prototype.arcSegment = function(x, y, radIn, radOut, fromAngle, toAngl
   var largeArcFlag = toAngle - fromAngle <= 180.0 ? "0" : "1";
   this.move(startOutX, startOutY);
   this.strs.push(" A".concat(radOut, " ", radOut, " 0 ", largeArcFlag, " 1 ", endOutX, " ", endOutY));
-  this.line(endInX, endInY);
+  if(full) {
+    this.close();
+    this.move(endInX, endInY);
+  } else {
+    this.line(endInX, endInY);
+  }
   this.strs.push(" A".concat(radIn, " ", radIn, " 180 ", largeArcFlag, " 0 ", startInX, " ", startInY));
   this.close();
 };
