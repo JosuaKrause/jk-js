@@ -22,24 +22,31 @@ jkjs.Path.prototype.move = function(x, y) {
     this.slack = "M".concat(x, " ", y);
   }
   this.strs.push(" M".concat(x, " ", y));
+  return this;
 };
 jkjs.Path.prototype.line = function(x, y) {
   this.strs.push(" L".concat(x, " ", y));
+  return this;
 };
 jkjs.Path.prototype.quad = function(mx, my, x, y) {
   this.strs.push(" Q".concat(mx, " ", my, " ", x, " ", y));
+  return this;
 };
 jkjs.Path.prototype.moveBy = function(dx, dy) {
   this.strs.push(" m".concat(dx, " ", dy));
+  return this;
 };
 jkjs.Path.prototype.lineBy = function(dx, dy) {
   this.strs.push(" l".concat(dx, " ", dy));
+  return this;
 };
 jkjs.Path.prototype.quadBy = function(dmx, dmy, dx, dy) {
   this.strs.push(" q".concat(dmx, " ", dmy, " ", dx, " ", dy));
+  return this;
 };
 jkjs.Path.prototype.close = function() {
   this.strs.push(" Z");
+  return this;
 };
 jkjs.Path.prototype.arcSegment = function(x, y, radIn, radOut, fromAngle, toAngle) {
   var full = false;
@@ -66,10 +73,11 @@ jkjs.Path.prototype.arcSegment = function(x, y, radIn, radOut, fromAngle, toAngl
   }
   this.strs.push(" A".concat(radIn, " ", radIn, " 180 ", largeArcFlag, " 0 ", startInX, " ", startInY));
   this.close();
+  return this;
 };
 jkjs.Path.prototype.addPoly = function(arr) {
-  if(!arr.length) return;
   var that = this;
+  if(!arr.length) return that;
   var first = true;
   arr.forEach(function(pos) {
     if(first) {
@@ -80,6 +88,7 @@ jkjs.Path.prototype.addPoly = function(arr) {
     }
   });
   that.close();
+  return that;
 };
 jkjs.Path.prototype.pointAdder = function(size) {
   // for tight loops
@@ -99,6 +108,7 @@ jkjs.Path.prototype.fillRect = function(x, y, w, h) {
   this.lineBy(0, h);
   this.lineBy(-w, 0);
   this.close();
+  return this;
 };
 jkjs.Path.prototype.toString = function() {
   // we always have a meaningless move before the actual path
@@ -123,9 +133,8 @@ jkjs.Path.prototype.toString = function() {
   return res;
 };
 jkjs.Path.prototype.add = function(path) {
-  if (path.isEmpty())
-    return this;
-  if (this.isEmpty()) {
+  if(path.isEmpty()) return this;
+  if(this.isEmpty()) {
     this.slack = path.slack;
   }
   this.strs = this.strs.concat(path.strs);
