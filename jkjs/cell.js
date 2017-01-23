@@ -53,6 +53,10 @@ window.jkjs.Cell = function(_init) {
     updatePrimed = true;
   }
 
+  this.silentSet = function(v) {
+    value = v;
+  };
+
   function set(v) {
     if(!changePrimed) {
       oldValue = value;
