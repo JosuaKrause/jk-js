@@ -10,6 +10,14 @@ window.jkjs.Cell = function(_init) {
   var value = null;
   var oldValue = null;
 
+  var eq = function(a, b) {
+    return Object.is(a, b);
+  };
+  this.equalFunction = function(_) {
+    if(!arguments.length) return eq;
+    eq = _;
+  }; // equalFunction
+
   var changePs = {};
   var changePrimed = false;
   function primeChange() {
@@ -19,7 +27,7 @@ window.jkjs.Cell = function(_init) {
       // have defined behavior if some Cell methods are
       // called during execution of listeners
       changePrimed = false;
-      var same = Object.is(oldValue, value);
+      var same = eq(oldValue, value);
       var listeners = Object.keys(changePs).filter(function(ix) {
         return !same || changePs[ix] > 1;
       }).map(function(ix) {
@@ -62,7 +70,7 @@ window.jkjs.Cell = function(_init) {
       oldValue = value;
     }
     value = v;
-    if(changeListeners.length && !Object.is(oldValue, value)) {
+    if(changeListeners.length && !eq(oldValue, value)) {
       changeListeners.forEach(function(_, ix) {
         changePs[ix] = changePs[ix] || 1;
       });
