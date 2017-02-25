@@ -565,6 +565,15 @@ jkjs.util = function() {
     );
   };
 
+  this.rectInViewport = function(rect) {
+    return that.rectIntersect(rect, {
+      "x": 0,
+      "y": 0,
+      "width": window.innerWidth || document.documentElement.clientWidth,
+      "height": window.innerHeight || document.documentElement.clientHeight,
+    });
+  };
+
 }; // jkjs.util
 
 jkjs.util = new jkjs.util(); // create instance
