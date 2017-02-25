@@ -165,6 +165,7 @@ jkjs.text = function() {
    *          The vertical positioning. Defaults to top. Valid values are jkjs.text.position.{top, center, bottom}.
    * @param addTitle
    *          Whether to add a title element for tool-tips. Defaults to false.
+   *          If a string is passed this string will be used as title.
    * @param guaranteeText
    *          Whether text will be forced even if there is not enough room. Defaults to false.
    * @returns
@@ -243,7 +244,7 @@ jkjs.text = function() {
     }
     if(addTitle) {
       selText.selectAll("title").remove();
-      selText.append("title").text(text);
+      selText.append("title").text(!!addTitle !== addTitle ? addTitle : text);
     }
     return segments.length != 0;
   };
