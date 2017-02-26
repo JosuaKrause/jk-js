@@ -565,12 +565,27 @@ jkjs.util = function() {
     );
   };
 
-  this.rectInViewport = function(rect) {
+  this.rectInViewport = function(rect, screenSizeMultiplier) {
+    var x = 0;
+    var y = 0;
+    var w = window.innerWidth || document.documentElement.clientWidth;
+    var h = window.innerHeight || document.documentElement.clientHeight;
+    if(arguments.length > 1) {
+      if(screenSizeMultiplier < 1.0) {
+        console.warn("shrinking screen size multiplier", screenSizeMultiplier);
+      }
+      x += w * 0.5;
+      y += h * 0.5;
+      w *= screenSizeMultiplier;
+      h *= screenSizeMultiplier;
+      x -= w * 0.5;
+      y -= h * 0.5;
+    }
     return that.rectIntersect(rect, {
-      "x": 0,
-      "y": 0,
-      "width": window.innerWidth || document.documentElement.clientWidth,
-      "height": window.innerHeight || document.documentElement.clientHeight,
+      "x": x,
+      "y": y,
+      "width": w,
+      "height": h,
     });
   };
 
