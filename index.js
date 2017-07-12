@@ -4,10 +4,7 @@
 const jkjs = {};
 
 function need(path) {
-    const tmp = require(path);
-    Object.keys(tmp).forEach((k) => {
-        jkjs[k] = tmp[k];
-    });
+    Object.assign(jkjs, require(path));
 }
 
 // need('./jkjs/busy.js'); // requires images
