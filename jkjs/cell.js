@@ -3,9 +3,16 @@
  */
 "use strict";
 
-window.jkjs = window.jkjs || {}; // init namespace
+var jkjs;
+if(typeof module !== "undefined") {
+  jkjs = {};
+  module.exports = jkjs;
+} else {
+  window.jkjs = window.jkjs || {}; // init namespace
+  jkjs = window.jkjs;
+}
 
-window.jkjs.Cell = function(_init) {
+jkjs.Cell = function(_init) {
   var that = this;
   var value = null;
   var oldValue = null;
@@ -152,18 +159,18 @@ window.jkjs.Cell = function(_init) {
     value = _init;
     oldValue = _init;
   }
-}; // window.jkjs.Cell
-window.jkjs.Cell.prototype.toString = function() {
+}; // jkjs.Cell
+jkjs.Cell.prototype.toString = function() {
   return "" + this.value;
 };
-window.jkjs.Cell.anyChange = function(list, cb) {
+jkjs.Cell.anyChange = function(list, cb) {
   list.forEach(function(c) {
     c.addChangeListener(function() {
       cb();
     });
   });
 };
-window.jkjs.Cell.allChange = function(list, cb) {
+jkjs.Cell.allChange = function(list, cb) {
   var chgs = list.map(function(c, ix) {
     c.addChangeListener(function() {
       chgs[ix] = true;
@@ -181,9 +188,9 @@ window.jkjs.Cell.allChange = function(list, cb) {
   });
 };
 
-window.jkjs.Event = function(_) {
+jkjs.Event = function(_) {
   var that = this;
-  var cell = new window.jkjs.Cell(false);
+  var cell = new jkjs.Cell(false);
   this.emit = function() {
     cell.value = !cell.value;
   };
@@ -201,4 +208,4 @@ window.jkjs.Event = function(_) {
   if(arguments.length) {
     that.addEventListener(_);
   }
-}; // window.jkjs.Event
+}; // jkjs.Event

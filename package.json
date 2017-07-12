@@ -1,0 +1,19 @@
+{
+  "name": "jk-js",
+  "version": "1.0.0",
+  "description": "Small JavaScript utility library.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JosuaKrause/jk-js.git"
+  },
+  "author": "Josua Krause",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JosuaKrause/jk-js/issues"
+  },
+  "homepage": "https://github.com/JosuaKrause/jk-js#readme"
+}

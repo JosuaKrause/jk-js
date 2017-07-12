@@ -3,7 +3,14 @@
  */
 "use strict";
 
-window.jkjs = window.jkjs || {}; // init namespace
+var jkjs;
+if(typeof module !== "undefined") {
+  jkjs = {};
+  module.exports = jkjs;
+} else {
+  window.jkjs = window.jkjs || {}; // init namespace
+  jkjs = window.jkjs;
+}
 
 (function() { // scope for private helper functions
 
@@ -62,7 +69,7 @@ window.jkjs = window.jkjs || {}; // init namespace
     return select;
   }
 
-  window.jkjs.Select = function(sel, cell, label, flippedLabel) {
+  jkjs.Select = function(sel, cell, label, flippedLabel) {
     var that = this;
     var select = init(that, sel, cell, label, flippedLabel, "select", "change", "value");
 
@@ -88,9 +95,9 @@ window.jkjs = window.jkjs || {}; // init namespace
       select.node().value = cell.value;
       return that;
     };
-  }; // window.jkjs.Select
+  }; // jkjs.Select
 
-  window.jkjs.Spinner = function(sel, cell, label, flippedLabel) {
+  jkjs.Spinner = function(sel, cell, label, flippedLabel) {
     var that = this;
     var spinner = init(that, sel, cell, label, flippedLabel, "input", "change", "value");
     spinner.attr({
@@ -113,22 +120,22 @@ window.jkjs = window.jkjs || {}; // init namespace
       });
       spinner.node().value = +cell.value;
     };
-  }; // window.jkjs.Spinner
+  }; // jkjs.Spinner
 
-  window.jkjs.InputText = function(sel, cell, label, flippedLabel) {
+  jkjs.InputText = function(sel, cell, label, flippedLabel) {
     var that = this;
     var inputText = init(that, sel, cell, label, flippedLabel, "input", "change", "value");
     inputText.attr({
       "type": "text",
     });
-  }; // window.jkjs.InputText
+  }; // jkjs.InputText
 
-  window.jkjs.Checkbox = function(sel, cell, label, flippedLabel) {
+  jkjs.Checkbox = function(sel, cell, label, flippedLabel) {
     var that = this;
     var checkbox = init(that, sel, cell, label, flippedLabel, "input", "change", "checked");
     checkbox.attr({
       "type": "checkbox",
     });
-  }; // window.jkjs.Checkbox
+  }; // jkjs.Checkbox
 
 })(); // end of scope for private helper functions
