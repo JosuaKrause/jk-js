@@ -17,7 +17,7 @@ need('./jkjs/cell.js');
 need('./jkjs/path.js');
 // need('./jkjs/select.js'); // d3 / HTML
 need('./jkjs/stat.js');
-// need('./jkjs/text.js'); // d3 / SVG
+need('./jkjs/text.js');
 need('./jkjs/time.js');
 need('./jkjs/util.js'); // some functions are browser specific
 // need('./jkjs/zui.js'); // d3

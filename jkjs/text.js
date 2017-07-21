@@ -47,12 +47,27 @@ jkjs.text = function() {
     exact = _;
   };
 
+  function getBBox(sel) {
+    if(sel.node().getBBox) {
+      return sel.node().getBBox();
+    }
+    var fs = sel.attr('font-size');
+    var size = 16;
+    if(fs) {
+      size = +fs.replace(/[a-zA-Z]/g, '');
+    }
+    return {
+      'width': size * 0.75 * sel.text().length,
+      'height': size,
+    };
+  }
+
   function fit(line, selText, w, h) {
     var ow;
     var oh;
     if(exact || !selText.__textSizeCache) {
       selText.text(line);
-      var own = selText.node().getBBox();
+      var own = getBBox(selText);
       ow = own.width;
       oh = own.height;
       if(!exact) {
@@ -182,13 +197,10 @@ jkjs.text = function() {
   this.display = function(selText, text, box, wordwrap, horAlign, verPos, addTitle, guaranteeText) {
     // clean previous state
     selText.selectAll("tspan").remove();
-    selText.attr({
-      "x": null,
-      "y": null,
-    }).style({
-      "text-anchor": null,
-      "alignment-baseline": null,
-    });
+    selText.attr("x", null);
+    selText.attr("y", null);
+    selText.attr("text-anchor", null);
+    selText.attr("alignment-baseline", null);
     // compute segments
     var ra = horAlign || ALIGN_LEFT;
     var boxW = box.width;
@@ -200,16 +212,12 @@ jkjs.text = function() {
     }
     // produce geometry
     if(ra !== ALIGN_LEFT) {
-      selText.style({
-        "text-anchor": ra === ALIGN_MIDDLE ? "middle" : "end",
-      });
+      selText.style("text-anchor", ra === ALIGN_MIDDLE ? "middle" : "end");
     }
     var backH = 0;
     var vp = verPos || POS_TOP;
     if(vp === POS_CENTER) {
-      selText.style({
-        "alignment-baseline": "central",
-      });
+      selText.style("alignment-baseline", "central");
       backH = height * 0.5;
     }
     var x = box.x;
@@ -232,20 +240,19 @@ jkjs.text = function() {
       offH = y + boxH - segments.length * height;
     }
     if(segments.length === 1) {
-      selText.text(segments[0]).attr({
-        "x": anchorX,
-        "y": offH + height - backH,
-      });
+      selText.text(segments[0])
+        .attr("x", anchorX)
+        .attr("y", offH + height - backH);
     } else {
       selText.text("");
       if(segments.length) {
         var posY = offH;
         segments.forEach(function(seg) {
           posY += height;
-          selText.append("tspan").attr({
-            "x": anchorX,
-            "y": posY - backH,
-          }).text(seg);
+          selText.append("tspan")
+            .attr("x", anchorX)
+            .attr("y", posY - backH)
+            .text(seg);
         });
       }
     }

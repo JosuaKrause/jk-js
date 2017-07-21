@@ -359,7 +359,7 @@ jkjs.stat = function() {
   this.bin = function(array, isNominal, minValue, maxValue, binCount) {
     var min;
     var max;
-    if(arguments.length < 4) {
+    if(arguments.length < 4 || (minValue === null && maxValue === null)) {
       var minmax = that.minmax(array);
       min = minmax[0];
       max = minmax[1];
@@ -477,18 +477,20 @@ jkjs.stat = function() {
       this.getIndices = function() {
         return arr;
       };
-      this.getWidth = function(w, count, maxCount) {
+      this.getMassLength = function(w, count, maxCount) {
         if(isNominal) {
           return this.getCount() ? w * count / this.getCount() : 0;
         }
         return maxCount ? w * count / maxCount : 0;
       };
-      this.getHeight = function(h, k) {
+      this.getWidth = this.getMassLength;
+      this.getSpaceLength = function(h, k) {
         if(isNominal) {
           return h * this.getCount() / size;
         }
         return h / k;
       };
+      this.getHeight = this.getSpaceLength;
     } // Bin
 
     return curBins;

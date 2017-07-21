@@ -480,10 +480,16 @@ jkjs.util = function() {
     }
   };
 
+  var rng = () => Math.random();
+  this.rng = function(_) {
+    if(!arguments.length) return rng;
+    rng = _;
+  };
+
   this.randomNorm = function(maxRad, norm) {
     // maxRad should be >= 1e-3
     for(;;) {
-      var rnd = ((Math.random() + Math.random() + Math.random() + Math.random() + Math.random() + Math.random()) - 3) / 3; // stddev: ~1, mean: ~0
+      var rnd = ((rng() + rng() + rng() + rng() + rng() + rng()) - 3) / 3; // stddev: ~1, mean: ~0
       if(arguments.length < 1 || maxRad < 1e-3 || Math.abs(rnd) <= maxRad) {
         if(arguments.length >= 2 && norm) {
           return rnd / maxRad;
@@ -512,7 +518,7 @@ jkjs.util = function() {
         reservoir.push(v);
         return;
       }
-      var pos = Math.floor(Math.random() * (ix + 1));
+      var pos = Math.floor(rng() * (ix + 1));
       if(pos < reservoir.length) {
         reservoir[pos] = v;
       }
@@ -525,7 +531,7 @@ jkjs.util = function() {
     var t = arguments.length < 3 ? arr.length : to;
     var i = t;
     while(i > f) {
-      var j = Math.floor(Math.random() * (i - f)) + f;
+      var j = Math.floor(rng() * (i - f)) + f;
       i -= 1;
       var tmp = arr[i];
       arr[i] = arr[j];
@@ -561,22 +567,32 @@ jkjs.util = function() {
     return r;
   };
 
-  this.inViewport = function(sel) {
+  function getHeight(context) {
+    var ctx = context || [ window, document ];
+    return ctx[0].innerHeight || ctx[1].documentElement.clientHeight;
+  }
+
+  function getWidth(context) {
+    var ctx = context || [ window, document ];
+    return ctx[0].innerWidth || ctx[1].documentElement.clientWidth;
+  }
+
+  this.inViewport = function(sel, context) {
     var el = sel.node();
     var rect = el.getBoundingClientRect();
     return (
-      rect["top"] <= (window.innerHeight || document.documentElement.clientHeight) &&
-      rect["left"] <= (window.innerWidth || document.documentElement.clientWidth) &&
+      rect["top"] <= getHeight(context) &&
+      rect["left"] <= getWidth(context) &&
       rect["bottom"] >= 0 &&
       rect["right"] >= 0
     );
   };
 
-  this.rectInViewport = function(rect, screenSizeMultiplier) {
+  this.rectInViewport = function(rect, screenSizeMultiplier, context) {
     var x = 0;
     var y = 0;
-    var w = window.innerWidth || document.documentElement.clientWidth;
-    var h = window.innerHeight || document.documentElement.clientHeight;
+    var w = getWidth(context);
+    var h = getHeight(context);
     if(arguments.length > 1) {
       if(screenSizeMultiplier < 1.0) {
         console.warn("shrinking screen size multiplier", screenSizeMultiplier);
@@ -594,6 +610,14 @@ jkjs.util = function() {
       "width": w,
       "height": h,
     });
+  };
+
+  this.range = function(a, b) {
+    const hasB = b !== undefined && b !== null;
+    if(!hasB) {
+      return [...new Array(a)].map((_, ix) => ix);
+    }
+    return [...new Array(b - a)].map((_, ix) => ix + a);
   };
 
 }; // jkjs.util
