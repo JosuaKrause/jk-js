@@ -92,7 +92,10 @@ jkjs.text = function() {
   /** The short ellipsis string. */
   var shellip = "..";
 
-  function shrink(line, wordwrap, before) {
+  function shrink(line, wordwrap, before, noShrink) {
+    if(noShrink) {
+      return [];
+    }
     if(!wordwrap) {
       if(line.length < 4) {
         return [];
@@ -120,7 +123,7 @@ jkjs.text = function() {
     return before.length ? [ first, before ] : [ first ];
   }
 
-  function computeSegments(box, text, wordwrap, textSel, all) {
+  function computeSegments(box, text, wordwrap, textSel, all, noShrink) {
     var segments = [];
     var w = box.width;
     var curY = box.y;
@@ -134,7 +137,7 @@ jkjs.text = function() {
         var cur = text;
         var rem = "";
         while(true) {
-          var s = shrink(cur, ww, rem);
+          var s = shrink(cur, ww, rem, noShrink);
           if(!s.length) {
             break;
           }
@@ -190,11 +193,13 @@ jkjs.text = function() {
    *          If a string is passed this string will be used as title.
    * @param guaranteeText
    *          Whether text will be forced even if there is not enough room. Defaults to false.
+   * @param noShrink
+   *          Whether to shrink the text.
    * @returns
    *          Whether the text element contains any text. This can be used to remove the text element if not needed.
    *          <pre>jkjs.text.display(sel, ...) || sel.remove();</pre>
    */
-  this.display = function(selText, text, box, wordwrap, horAlign, verPos, addTitle, guaranteeText) {
+  this.display = function(selText, text, box, wordwrap, horAlign, verPos, addTitle, guaranteeText, noShrink) {
     // clean previous state
     selText.selectAll("tspan").remove();
     selText.attr("x", null);
@@ -206,7 +211,7 @@ jkjs.text = function() {
     var boxW = box.width;
     var all = fit(text, selText, boxW, box.height);
     var height = Math.floor(all.height);
-    var segments = computeSegments(box, text, wordwrap, selText, all);
+    var segments = computeSegments(box, text, wordwrap, selText, all, noShrink);
     if(!segments.length && guaranteeText) {
       segments = [ shellip ];
     }
