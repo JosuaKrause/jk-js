@@ -6,7 +6,14 @@
  * @author Joschi <josua.krause@gmail.com>
  */
 
-jkjs = window.jkjs || {}; // init namespace
+var jkjs;
+if(typeof module !== "undefined") {
+  jkjs = {};
+  module.exports = jkjs;
+} else {
+  window.jkjs = window.jkjs || {}; // init namespace
+  jkjs = window.jkjs;
+}
 
 jkjs.busy = function() {
   var outer = this;

@@ -4,7 +4,14 @@
  * @author Joschi <josua.krause@gmail.com>
  */
 
-jkjs = window.jkjs || {}; // init namespace
+var jkjs;
+if(typeof module !== "undefined") {
+  jkjs = {};
+  module.exports = jkjs;
+} else {
+  window.jkjs = window.jkjs || {}; // init namespace
+  jkjs = window.jkjs;
+}
 
 jkjs.text = function() {
 
@@ -40,12 +47,27 @@ jkjs.text = function() {
     exact = _;
   };
 
+  function getBBox(sel) {
+    if(sel.node().getBBox) {
+      return sel.node().getBBox();
+    }
+    var fs = sel.attr('font-size');
+    var size = 16;
+    if(fs) {
+      size = +fs.replace(/[a-zA-Z]/g, '');
+    }
+    return {
+      'width': size * 0.75 * sel.text().length,
+      'height': size,
+    };
+  }
+
   function fit(line, selText, w, h) {
     var ow;
     var oh;
     if(exact || !selText.__textSizeCache) {
       selText.text(line);
-      var own = selText.node().getBBox();
+      var own = getBBox(selText);
       ow = own.width;
       oh = own.height;
       if(!exact) {
@@ -70,7 +92,10 @@ jkjs.text = function() {
   /** The short ellipsis string. */
   var shellip = "..";
 
-  function shrink(line, wordwrap, before) {
+  function shrink(line, wordwrap, before, noShrink) {
+    if(noShrink) {
+      return [];
+    }
     if(!wordwrap) {
       if(line.length < 4) {
         return [];
@@ -98,7 +123,7 @@ jkjs.text = function() {
     return before.length ? [ first, before ] : [ first ];
   }
 
-  function computeSegments(box, text, wordwrap, textSel, all) {
+  function computeSegments(box, text, wordwrap, textSel, all, noShrink) {
     var segments = [];
     var w = box.width;
     var curY = box.y;
@@ -112,7 +137,7 @@ jkjs.text = function() {
         var cur = text;
         var rem = "";
         while(true) {
-          var s = shrink(cur, ww, rem);
+          var s = shrink(cur, ww, rem, noShrink);
           if(!s.length) {
             break;
           }
@@ -168,41 +193,36 @@ jkjs.text = function() {
    *          If a string is passed this string will be used as title.
    * @param guaranteeText
    *          Whether text will be forced even if there is not enough room. Defaults to false.
+   * @param noShrink
+   *          Whether to shrink the text.
    * @returns
    *          Whether the text element contains any text. This can be used to remove the text element if not needed.
    *          <pre>jkjs.text.display(sel, ...) || sel.remove();</pre>
    */
-  this.display = function(selText, text, box, wordwrap, horAlign, verPos, addTitle, guaranteeText) {
+  this.display = function(selText, text, box, wordwrap, horAlign, verPos, addTitle, guaranteeText, noShrink) {
     // clean previous state
     selText.selectAll("tspan").remove();
-    selText.attr({
-      "x": null,
-      "y": null,
-    }).style({
-      "text-anchor": null,
-      "alignment-baseline": null,
-    });
+    selText.attr("x", null);
+    selText.attr("y", null);
+    selText.attr("text-anchor", null);
+    selText.attr("alignment-baseline", null);
     // compute segments
     var ra = horAlign || ALIGN_LEFT;
     var boxW = box.width;
     var all = fit(text, selText, boxW, box.height);
     var height = Math.floor(all.height);
-    var segments = computeSegments(box, text, wordwrap, selText, all);
+    var segments = computeSegments(box, text, wordwrap, selText, all, noShrink);
     if(!segments.length && guaranteeText) {
       segments = [ shellip ];
     }
     // produce geometry
     if(ra !== ALIGN_LEFT) {
-      selText.style({
-        "text-anchor": ra === ALIGN_MIDDLE ? "middle" : "end",
-      });
+      selText.style("text-anchor", ra === ALIGN_MIDDLE ? "middle" : "end");
     }
     var backH = 0;
     var vp = verPos || POS_TOP;
     if(vp === POS_CENTER) {
-      selText.style({
-        "alignment-baseline": "central",
-      });
+      selText.style("alignment-baseline", "central");
       backH = height * 0.5;
     }
     var x = box.x;
@@ -225,20 +245,19 @@ jkjs.text = function() {
       offH = y + boxH - segments.length * height;
     }
     if(segments.length === 1) {
-      selText.text(segments[0]).attr({
-        "x": anchorX,
-        "y": offH + height - backH,
-      });
+      selText.text(segments[0])
+        .attr("x", anchorX)
+        .attr("y", offH + height - backH);
     } else {
       selText.text("");
       if(segments.length) {
         var posY = offH;
         segments.forEach(function(seg) {
           posY += height;
-          selText.append("tspan").attr({
-            "x": anchorX,
-            "y": posY - backH,
-          }).text(seg);
+          selText.append("tspan")
+            .attr("x", anchorX)
+            .attr("y", posY - backH)
+            .text(seg);
         });
       }
     }
